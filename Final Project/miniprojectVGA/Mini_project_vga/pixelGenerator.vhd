@@ -7,7 +7,7 @@ entity pixelGenerator is
 	port(
 			clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 			pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
-			red_out, green_out, blue_out					: out std_logic_vector(9 downto 0)
+			red_out, green_out, blue_out					: out std_logic_vector(7 downto 0)
 		);
 end entity pixelGenerator;
 
@@ -27,12 +27,12 @@ component colorROM is
 	(
 		address		: in std_logic_vector (2 downto 0);
 		clock		: in std_logic  := '1';
-		q			: out std_logic_vector (29 downto 0)
+		q			: out std_logic_vector (23 downto 0)
 	);
 end component colorROM;
 
 signal colorAddress : std_logic_vector (2 downto 0);
-signal color        : std_logic_vector (29 downto 0);
+signal color        : std_logic_vector (23 downto 0);
 
 signal pixel_row_int, pixel_column_int : natural;
 
@@ -40,9 +40,9 @@ begin
 
 --------------------------------------------------------------------------------------------
 	
-	red_out <= color(29 downto 20);
-	green_out <= color(19 downto 10);
-	blue_out <= color(9 downto 0);
+	red_out <= color(23 downto 16);
+	green_out <= color(15 downto 8);
+	blue_out <= color(7 downto 0);
 
 	pixel_row_int <= to_integer(unsigned(pixel_row));
 	pixel_column_int <= to_integer(unsigned(pixel_column));
@@ -59,8 +59,9 @@ begin
 	begin
 			
 		if (rising_edge(clk)) then
-		
-			if (pixel_row_int < 240 and pixel_column_int < 320) then
+			if (((pixel_row_int > 200) and (pixel_row_int < 280)) and (pixel_column_int > 280 and pixel_column_int < 360)) then
+				colorAddress <= color_white;
+			elsif (pixel_row_int < 240 and pixel_column_int < 320) then
 				colorAddress <= color_green;
 			elsif (pixel_row_int >= 240 and pixel_column_int < 320) then
 				colorAddress <= color_yellow;

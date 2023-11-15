@@ -44,14 +44,14 @@ ENTITY colorROM IS
 	(
 		address		: IN STD_LOGIC_VECTOR (2 DOWNTO 0);
 		clock		: IN STD_LOGIC  := '1';
-		q		: OUT STD_LOGIC_VECTOR (29 DOWNTO 0)
+		q		: OUT STD_LOGIC_VECTOR (23 DOWNTO 0)
 	);
 END colorROM;
 
 
 ARCHITECTURE SYN OF colorrom IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (29 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (23 DOWNTO 0);
 
 
 
@@ -74,12 +74,12 @@ ARCHITECTURE SYN OF colorrom IS
 	PORT (
 			clock0	: IN STD_LOGIC ;
 			address_a	: IN STD_LOGIC_VECTOR (2 DOWNTO 0);
-			q_a	: OUT STD_LOGIC_VECTOR (29 DOWNTO 0)
+			q_a	: OUT STD_LOGIC_VECTOR (23 DOWNTO 0)
 	);
 	END COMPONENT;
 
 BEGIN
-	q    <= sub_wire0(29 DOWNTO 0);
+	q    <= sub_wire0(23 DOWNTO 0);
 
 	altsyncram_component : altsyncram
 	GENERIC MAP (

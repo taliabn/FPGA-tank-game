@@ -8,7 +8,7 @@ entity VGA_top_level is
 			RESET_N											: in std_logic;
 	
 			--VGA 
-			VGA_RED, VGA_GREEN, VGA_BLUE 					: out std_logic_vector(9 downto 0); 
+			VGA_RED, VGA_GREEN, VGA_BLUE 					: out std_logic_vector(7 downto 0); 
 			HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK		: out std_logic
 
 		);
@@ -20,7 +20,7 @@ component pixelGenerator is
 	port(
 			clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 			pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
-			red_out, green_out, blue_out					: out std_logic_vector(9 downto 0)
+			red_out, green_out, blue_out					: out std_logic_vector(7 downto 0)
 		);
 end component pixelGenerator;
 
