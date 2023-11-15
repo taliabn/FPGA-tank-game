@@ -1,0 +1,41 @@
+# gitignore
+.DS_Store
+.DS_STORE
+
+*.summary
+*.done
+*.qws
+*.ddb
+*.cnf.*
+*.idb
+*.pof
+*.bak
+*.sof
+*.jdi
+*.sld
+*.smsg
+*.sta.*
+*.tan.*
+*.rpt
+*.cdf
+*.pin
+*.qip
+*.qws
+*.mif
+*.cmp
+
+# Ignore all files with 'assignment_defaults.qdf' in their path
+*assignment_defaults.qdf
+
+*/*/*/db
+*/*/*/incremental_db
+*/*/*/incremental_db/
+
+
+# Do not ignore
+!*.vhd
+!*.vhdl
+!*.qsf
+!*.qpf
+
+
