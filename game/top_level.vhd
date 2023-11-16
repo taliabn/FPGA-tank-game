@@ -1,5 +1,19 @@
---- objects have 0, 0 at top left
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
+entity top_level is
+  port (
+	clock, reset: in std_logic
+  );
+end top_level ; 
+
+architecture structural of top_level is
+
+begin
+
+end architecture ;
+--- objects have 0, 0 at top left
 -- MODEL modules
 
 -- tank (two instances)
@@ -98,3 +112,5 @@
 
 -- questions
 	-- how to use PLL? (sys clock to our faster clock)
+	-- is numerical score going to LCD or seven-segment LEDs
+	-- should we care about ties?

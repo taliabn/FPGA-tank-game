@@ -26,10 +26,11 @@
 # Ignore all files with 'assignment_defaults.qdf' in their path
 *assignment_defaults.qdf
 
-*/*/*/db
-*/*/*/incremental_db
-*/*/*/incremental_db/
-
+db
+incremental_db
+*/work
+*/output_files
+*/simulation
 
 # Do not ignore
 !*.vhd

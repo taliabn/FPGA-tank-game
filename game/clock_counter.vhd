@@ -1,7 +1,6 @@
 LIBRARY IEEE;
 use IEEE.NUMERIC_STD.all;
 USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
 
 -- Uses the 50MHz clock
 -- Generates a 30Hz clock, generating a pulse every 1/30th of a second
