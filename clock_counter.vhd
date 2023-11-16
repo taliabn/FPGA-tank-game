@@ -1,0 +1,32 @@
+LIBRARY IEEE;
+use IEEE.NUMERIC_STD.all;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.STD_LOGIC_ARITH.ALL;
+
+-- Uses the 50MHz clock
+-- Generates a 30Hz clock, generating a pulse every 1/30th of a second
+-- 50,000,000 / 30 = 1,666,666.66 ticks per pulse
+-- Count to 1,666,667, pulse and reset
+
+ENTITY clk30 IS
+    PORT (clock_50Mhz : IN STD_LOGIC;
+          clock_30hz : OUT STD_LOGIC);
+END clk30;
+
+ARCHITECTURE clk30_arch OF clk30 IS
+    SIGNAL counter : unsigned(23 DOWNTO 0) := (OTHERS => '0');
+
+BEGIN
+    PROCESS (clock_50MHz)
+    BEGIN
+        IF (rising_edge(clock_50MHz)) THEN
+            IF (counter >= 1666667) THEN
+                clock_30hz <= '1';
+                counter <= (OTHERS => '0');
+            ELSE
+                clock_30hz <= '0';
+                counter <= counter + 1;
+            END IF;
+        END IF;
+    END PROCESS;
+END clk30_arch;

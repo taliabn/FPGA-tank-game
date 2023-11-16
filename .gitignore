@@ -21,7 +21,6 @@
 *.pin
 *.qip
 *.qws
-*.mif
 *.cmp
 
 # Ignore all files with 'assignment_defaults.qdf' in their path

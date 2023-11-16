@@ -59,6 +59,7 @@ begin
 	begin
 			
 		if (rising_edge(clk)) then
+			-- if pixel is in bounding box of a game object, draw it the appropriate color, otherwise draw it background color
 			if (((pixel_row_int > 200) and (pixel_row_int < 280)) and (pixel_column_int > 280 and pixel_column_int < 360)) then
 				colorAddress <= color_white;
 			elsif (pixel_row_int < 240 and pixel_column_int < 320) then
