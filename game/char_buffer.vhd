@@ -4,9 +4,8 @@ use ieee.numeric_std.all ;
 
 entity char_buffer is
 	port (
-		p1_score, p2_score : in std_logic_vector(1 downto 0);
 		p1_win, p2_win, reset, game_tick : in std_logic;
-		char_buffer_80_chars : out std_logic_vector(0 to 80 - 1)
+		char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
 	) ;
 end char_buffer ; 
 
@@ -15,11 +14,9 @@ architecture behavior of char_buffer is
 	type t_state is (gameplay, win);
 	signal state, next_state: t_state;
 
-	signal buffer_comb, buffer_o: std_logic_vector(0 to 80 - 1) := (others => '0');
-	constant ascii_num_offset: unsigned(7 downto 0) := X"30"; -- ascii value for number 0
-begin
+	signal buffer_comb, buffer_o: std_logic_vector(80 - 1 downto 0) := (others => '0');
 
-	-- "p1_score:p2_score p1 won"
+begin
 
     clocked_process : process(game_tick, reset)
     begin
@@ -33,10 +30,7 @@ begin
 		end if;
 	end process clocked_process;
 
-
-	combo_process : process(state, p1_score, p2_score, p1_win, p2_win)
-		variable tmp_p1: unsigned(7 downto 0);
-		variable tmp_p2: unsigned(7 downto 0);
+	combo_process : process(state, p1_win, p2_win)
 	begin
 		-- assign defaults
 		buffer_comb <= buffer_o;
@@ -45,32 +39,25 @@ begin
 		case ( state ) is
 
 			when gameplay =>
-				-- display scores in format "p1_score:p2_score"
-				-- use buffer(0:2)
-				tmp_p1 := ascii_num_offset + unsigned(p1_score);
-				buffer_comb((8*0) to (8*1)-1) <= std_logic_vector(tmp_p1);
-				buffer_comb((8*1) to (8*2)-1) <= X"3A"; -- ":"
-				tmp_p2 := ascii_num_offset + unsigned(p2_score);
-				buffer_comb((8*2) to (8*3)-1) <= std_logic_vector(tmp_p2);
-
-				-- default to returning to gameplay
 				if (p1_win = '1' or p2_win = '1') then
-					-- display winner in format "PX won"
-					-- use buffer(4:9)
-					buffer_comb((8*4) to (8*5)-1) <= X"50"; -- "P"
-
+					-- display winner in format "PX wins!"
+					-- use buffer(9:2)
+					buffer_comb((8*10)-1 downto (8*9)) <= X"50"; -- "P"
 					-- this does not handle ties, prioritizes p1
 					if (p1_win = '1') then
-						buffer_comb((8*5) to (8*6)-1) <= X"31"; -- "1"
+						buffer_comb((8*9)-1 downto (8*8)) <= X"31"; -- "1"
 					elsif (p2_win = '1') then
-						buffer_comb((8*5) to (8*6)-1) <= X"32"; -- "2"
+						buffer_comb((8*9)-1 downto (8*8)) <= X"32"; -- "2"
 					else -- some timing got messed up (shouldn't happen)
-						buffer_comb((8*5) to (8*6)-1) <= X"3F"; -- "?"
+						buffer_comb((8*9)-1 downto (8*8)) <= X"3F"; -- "?"
 					end if;
 
-					buffer_comb((8*7) to (8*8)-1) <= X"77"; -- "w"
-					buffer_comb((8*8) to (8*9)-1) <= X"6F"; -- "o"
-					buffer_comb((8*9) to (8*10)-1) <= X"6E"; -- "n"
+					buffer_comb((8*8)-1 downto (8*7)) <= X"20"; -- " "
+					buffer_comb((8*7)-1 downto (8*6)) <= X"77"; -- "w"
+					buffer_comb((8*6)-1 downto (8*5)) <= X"69"; -- "i"
+					buffer_comb((8*5)-1 downto (8*4)) <= X"6E"; -- "n"
+					buffer_comb((8*4)-1 downto (8*3)) <= X"73"; -- "s"
+					buffer_comb((8*3)-1 downto (8*2)) <= X"21"; -- "!"
 					next_state <= win;
 				else
 					next_state <= gameplay;

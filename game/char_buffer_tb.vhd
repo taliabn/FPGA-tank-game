@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 
+-- ghdl -a --workdir=work -g -fsynopsys char_buffer.vhd char_buffer_tb.vhd
 -- ghdl -a --workdir=work -g -fsynopsys de2lcd.vhd char_buffer.vhd char_buffer_tb.vhd
 -- ghdl --elab-run -g --workdir=work -fsynopsys char_buffer_tb
 
@@ -13,20 +14,24 @@ architecture behavioral of char_buffer_tb is
 	-- component declaration for the unit under test
 	component char_buffer is
 		port (
-			p1_score, p2_score : in std_logic_vector(1 downto 0);
 			p1_win, p2_win, reset, game_tick : in std_logic;
-			char_buffer_80_chars : out std_logic_vector(0 to 80 - 1)
+			char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
 		);
 	end component char_buffer ; 
 	
+	component leddcd is
+		port(
+			 data_in : in std_logic_vector(3 downto 0);
+			 segments_out : out std_logic_vector(6 downto 0)
+			);
+	end component leddcd;	
 
 	-- signals go here
 	signal p1_win, p2_win, reset, game_tick: std_logic := '0';
-	signal p1_score, p2_score : std_logic_vector(1 downto 0) := (others => '0');
-	signal char_buffer_80_chars : std_logic_vector(0 to 80 - 1) := (others => '0');
+	signal char_buffer_80_chars : std_logic_vector(80 - 1 downto 0) := (others => '0');
 
     signal finished : std_logic := '0';
-	signal tmp: std_logic_vector(0 to 80 - 1);
+	signal tmp: std_logic_vector(80 - 1 downto 0);
 
 	-- Set the game_tick to 100 ps
 	constant game_tick_period : time := 100 ps;
@@ -34,8 +39,6 @@ architecture behavioral of char_buffer_tb is
 begin
     dut: char_buffer
 		port map(
-			p1_score => p1_score, 
-			p2_score => p2_score,
 			p1_win => p1_win, 
 			p2_win => p2_win,
 			reset => reset, 
@@ -67,59 +70,35 @@ begin
 		reset <= '0'; 
 		wait until (game_tick = '0');
 
-		-- test 0: 0:0
-		p1_score <= "00"; 
-		p2_score <= "00"; 
+		-- test 0: no win, all spaces
 		p1_win <= '0';
 		p2_win <= '0';
 		wait for game_tick_period;
 
-		assert char_buffer_80_chars = X"303a3020202020202020" report "Test 0 failed" severity error;
+		assert char_buffer_80_chars = X"20202020202020202020" report "Test 0 failed" severity error;
 		-- report "Eq: " & integer'image(to_integer(unsigned(p2_score))) severity error;
 		-- for i in 0 to 9 loop
 		-- 	tmp <= char_buffer_80_chars(i*8 to (i+1)*8 - 1);
 		-- 	report integer'image(to_integer(unsigned(tmp)));
 		-- end loop;
-		
 
-		-- test 1: "0:1       " 
-		p1_score <= "00"; 
-		p2_score <= "01"; 
-		p1_win <= '0';
-		p2_win <= '0';
-		wait for game_tick_period;
-		
-		assert char_buffer_80_chars = X"303a3120202020202020" report "Test 1 failed" severity error;
-
-		-- test 2: "1:2       " 
-		p1_score <= "01"; 
-		p2_score <= "10"; 
-		p1_win <= '0';
-		p2_win <= '0';
-		wait for game_tick_period;
-		
-		assert char_buffer_80_chars = X"313a3220202020202020" report "Test 2 failed" severity error;
-
-		-- test 3: "3:1 P1 won"
-		p1_score <= "11"; 
-		p2_score <= "01"; 
+		-- test 1: "P1 wins!"
 		p1_win <= '1';
 		p2_win <= '0';
 		wait for game_tick_period;
-		tmp <= X"333a3120503120776f6e";
-		assert char_buffer_80_chars = tmp report "Test 3 failed" severity error;
+		tmp <= X"50312077696e73212020";
+		assert char_buffer_80_chars = tmp report "Test 1 failed" severity error;
 
-		-- test 4: "3:1 P1 won"
-		-- inputs change, but it should stay in reset state
-		p1_score <= "10"; 
-		p2_score <= "11"; 
+		-- test 2: "P1 wins!"
+		-- input winner change, but it should stay in win state
 		p1_win <= '0';
 		p2_win <= '1';
 		wait for game_tick_period;
 		
-		tmp <= X"323a3320503220776f6e";
-		assert char_buffer_80_chars = tmp report "Test 4 failed" severity error;
-		-- test 5: "2:3 P1 won"
+		tmp <= X"50312077696e73212020";		
+		assert char_buffer_80_chars = tmp report "Test 2 failed" severity error;
+
+		-- test 3:  "P2 wins!"
 		-- first, reset
 		reset <= '1';
 		wait until (game_tick = '0');
@@ -127,8 +106,8 @@ begin
 		reset <= '0'; 
 		wait until (game_tick = '0');
 		wait for game_tick_period;
-		tmp <= X"323a3320503220776f6e";
-		assert char_buffer_80_chars = tmp report "Test 5 failed" severity error;
+		tmp <= X"50322077696e73212020";
+		assert char_buffer_80_chars = tmp report "Test 3 failed" severity error;
 
         -- Display a message when simulation finished
         assert false report "end of test" severity note;

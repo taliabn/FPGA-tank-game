@@ -127,7 +127,7 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(7 to 0);
+						DATA_BUS_VALUE <= CHAR_BUFFER(7 downto 0);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR2;
 -- Write ASCII hex character in second LCD character location
@@ -135,7 +135,7 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(15 to 8);
+						DATA_BUS_VALUE <= CHAR_BUFFER(15 downto 8);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR3;
 -- Write ASCII hex character in third LCD character location
@@ -143,7 +143,7 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(23 to 16);
+						DATA_BUS_VALUE <= CHAR_BUFFER(23 downto 16);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR4;
 -- Write ASCII hex character in fourth LCD character location
@@ -151,7 +151,7 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(31 to 24);
+						DATA_BUS_VALUE <= CHAR_BUFFER(31 downto 24);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR5;
 -- Write ASCII hex character in fifth LCD character location
@@ -159,7 +159,7 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(39 to 32);
+						DATA_BUS_VALUE <= CHAR_BUFFER(39 downto 32);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR6;
 -- Write ASCII hex character in sixth LCD character location
@@ -167,7 +167,7 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(47 to 40);
+						DATA_BUS_VALUE <= CHAR_BUFFER(47 downto 40);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR7;
 -- Write ASCII hex character in seventh LCD character location
@@ -175,7 +175,7 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(55 to 48);
+						DATA_BUS_VALUE <= CHAR_BUFFER(55 downto 48);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR8;
 -- Write ASCII hex character in eighth LCD character location
@@ -183,21 +183,21 @@ BEGIN
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(63 to 56);
+						DATA_BUS_VALUE <= CHAR_BUFFER(63 downto 56);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR9;
 				WHEN WRITE_CHAR9 =>
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(71 to 54);
+						DATA_BUS_VALUE <= CHAR_BUFFER(71 downto 64);
 						state <= TOGGLE_E;
 						next_command <= WRITE_CHAR10;
 				WHEN WRITE_CHAR10 =>
 						LCD_E <= '1';
 						LCD_RS <= '1';
 						LCD_RW <= '0';
-						DATA_BUS_VALUE <= CHAR_BUFFER(79 to 72);
+						DATA_BUS_VALUE <= CHAR_BUFFER(79 downto 72);
 						state <= TOGGLE_E;
 						next_command <= RETURN_HOME;
 
