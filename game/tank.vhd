@@ -85,6 +85,4 @@ begin
     y_pos_out <= y_pos;
 end tank_arch;
 
-    -- ghdl -a --workdir=work -g -fsynopsys divider_const.vhd comparator.vhd divider.vhd divider_tb.vhd;
-    -- ghdl --elab-run -g --workdir=work -fsynopsys divider_tb
-
+-- ghdl -a --workdir=work -g -fsynopsys tank.vhd
