@@ -17,8 +17,7 @@ entity tank is
     generic(
         y_pos: std_logic_vector(9 downto 0);
         color: std_logic_vector(2 downto 0);
-        max_x: unsigned(9 downto 0);
-        speed_magnitude: unsigned(9 downto 0)
+        max_x: unsigned(9 downto 0)
     );
     port(
         speed: in std_logic_vector(1 downto 0);
@@ -33,6 +32,8 @@ architecture tank_arch of tank is
     signal next_state: state_type;
     signal next_x_pos: unsigned(9 downto 0);
     signal x_pos_int: unsigned(9 downto 0);
+
+    signal speed_int : unsigned(9 downto 0);
 begin
     -- Clocked process
     process(reset, game_tick)
@@ -49,6 +50,7 @@ begin
     -- Combinatorial process
     process(state, start)
     begin
+        speed_int <= unsigned(resize(unsigned(speed), 10));
         case state is
             when idle =>
                 if start = '1' then
@@ -59,18 +61,18 @@ begin
                     next_x_pos <= x_pos_int;
                 end if;
             when move_left =>
-                if x_pos_int - speed_magnitude > 0 then
+                if x_pos_int - speed_int > 0 then
                     next_state <= move_left;
-                    next_x_pos <= x_pos_int - speed_magnitude;
+                    next_x_pos <= x_pos_int - speed_int;
                 else
                     next_state <= move_right;
                     next_x_pos <= (others => '0');
                 end if;
             when move_right =>
                 -- TODO: factor in the width of the tank
-                if x_pos_int + speed_magnitude < max_x then
+                if x_pos_int + speed_int < max_x then
                     next_state <= move_right;
-                    next_x_pos <= x_pos_int + speed_magnitude;
+                    next_x_pos <= x_pos_int + speed_int;
                 else
                     next_state <= move_left;
                     next_x_pos <= max_x;
