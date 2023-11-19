@@ -30,7 +30,7 @@ begin
 		end if;
 	end process clocked_process;
 
-	combo_process : process(state, p1_win, p2_win)
+	combo_process : process(state, p1_win, p2_win, buffer_o)
 	begin
 		-- assign defaults
 		buffer_comb <= buffer_o;
@@ -58,9 +58,12 @@ begin
 					buffer_comb((8*5)-1 downto (8*4)) <= X"6E"; -- "n"
 					buffer_comb((8*4)-1 downto (8*3)) <= X"73"; -- "s"
 					buffer_comb((8*3)-1 downto (8*2)) <= X"21"; -- "!"
+					buffer_comb((8*2)-1 downto (8*1)) <= X"20"; -- " "
+					buffer_comb((8*1)-1 downto (8*0)) <= X"20"; -- " "
 					next_state <= win;
 				else
 					next_state <= gameplay;
+					buffer_comb <= X"20202020202020202020";
 				end if;
 
 			when win =>
