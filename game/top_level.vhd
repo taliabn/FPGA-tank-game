@@ -4,13 +4,127 @@ use ieee.numeric_std.all;
 
 entity top_level is
   port (
-	clock, reset: in std_logic
+	clk_50Mhz, reset, p1_hit, p2_hit: in std_logic;
+	segments_out_p1, segments_out_p2 : out std_logic_vector(6 downto 0);
+	LCD_RS, LCD_E, LCD_ON, RESET_LED, SEC_LED		: OUT	STD_LOGIC;
+	LCD_RW						: BUFFER STD_LOGIC;
+	DATA_BUS				: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0)
   );
 end top_level ; 
 
 architecture structural of top_level is
 
+	-- MODEL 
+	component score is
+		port (
+			p1_hit, p2_hit, reset, game_tick: in std_logic;
+			p1_score, p2_score : out std_logic_vector(1 downto 0);
+			p1_win, p2_win : out std_logic
+		);
+	end component score;
+
+	-- VIEW
+	component char_buffer is
+		port (
+			p1_win, p2_win, reset, game_tick : in std_logic;
+			char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
+			);
+			end component char_buffer ; 
+				
+	component leddcd is
+		port(
+			data_in : in std_logic_vector(3 downto 0);
+			segments_out : out std_logic_vector(6 downto 0)
+		   );
+	end component leddcd;
+
+	component de2lcd is 
+		port (
+			reset, clk_50Mhz				: IN	STD_LOGIC;
+			CHAR_BUFFER : IN STD_LOGIC_VECTOR(79 DOWNTO 0);
+			LCD_RS, LCD_E, LCD_ON, RESET_LED, SEC_LED		: OUT	STD_LOGIC;
+			LCD_RW						: BUFFER STD_LOGIC;
+			DATA_BUS				: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0));
+	end component de2lcd;
+
+	-- system
+	component clk30 is
+    PORT (clock_50Mhz : IN STD_LOGIC;
+          clock_30hz : OUT STD_LOGIC);
+	end component clk30;
+
+	-- signals
+	signal game_tick, p1_win, p2_win, clock_30hz, lcd_reset: std_logic;
+	signal p1_score, p2_score : std_logic_vector(1 downto 0);
+	signal char_buffer_80_chars : std_logic_vector(80 - 1 downto 0);
+	signal data_in_p1 : std_logic_vector(3 downto 0);
+	signal data_in_p2 : std_logic_vector(3 downto 0);
+
+
 begin
+
+	-- show_game_tick <= clock_30hz;
+	-- show_clk <= clk_50Mhz;
+	-- data_in_p1 <= "00" & p1_score;
+	-- data_in_p2 <= "00" & p2_score;
+	data_in_p1 <= char_buffer_80_chars(79 downto 76);
+	data_in_p2 <= char_buffer_80_chars(71 downto 68);
+	-- de2lcd has active low reset, everything else is using active high
+	lcd_reset <= not reset;
+
+	score_unit: score 
+		port map(
+			p1_hit => p1_hit, 
+			p2_hit => p2_hit, 
+			reset => reset, 
+			game_tick => clock_30hz,
+			p1_score => p1_score, 
+			p2_score => p2_score,
+			p1_win => p1_win, 
+			p2_win => p2_win
+		);
+
+	-- VIEW
+	char_buffer_unit: char_buffer
+		port map(
+			p1_win => p1_win, 
+			p2_win => p2_win,
+			reset => reset, 
+			game_tick => clock_30hz,
+			char_buffer_80_chars => char_buffer_80_chars
+		);
+					
+	leddcd_p1: leddcd
+		port map(
+			data_in => data_in_p1,
+			segments_out => segments_out_p1
+		   );
+					
+	leddcd_p2: leddcd
+		port map(
+			data_in => data_in_p2,
+			segments_out => segments_out_p2
+		   );
+
+	de2lcd_unit: de2lcd 
+		port map(
+			reset => lcd_reset, 
+			clk_50Mhz => clk_50Mhz,
+			CHAR_BUFFER => char_buffer_80_chars,
+			LCD_RS => LCD_RS,
+			LCD_E => LCD_E, 
+			LCD_ON => LCD_ON, 
+			RESET_LED => RESET_LED, 
+			SEC_LED => SEC_LED,
+			LCD_RW => LCD_RW,
+			DATA_BUS => DATA_BUS
+		);
+
+	clk30_unit: clk30
+		port map(
+			clock_50Mhz => clk_50Mhz,
+			clock_30hz => clock_30hz 
+		);
 
 end architecture ;
 --- objects have 0, 0 at top left
@@ -22,6 +136,7 @@ end architecture ;
 	-- reset, game_tick: in std_logic
 -- generics: y_pos: std_logic_vector(9 downto 0), 
 	-- color: std_logic_vector(2 downto 0)
+	-- tank_width, tank_height: integer
 -- outputs: x_pos, y_pos: out std_logic_vector(9 downto 0)
 -- notes: will have two instances
 	-- direction is implicitly tracked with FSM
@@ -33,6 +148,7 @@ end architecture ;
 	-- reset, fire, game_tick, is_collision: in std_logic
 -- generics: color: std_logic_vector(2 downto 0), 
 			-- direction: std_logic;
+			-- bullet_width, bullet_height: integer
 -- outputs: x_pos, y_pos: out std_logic_vector(9 downto 0)
 -- notes: will have two instances
 	-- existence is implicitly tracked by setting positions to max vals (aka off screen)
@@ -80,9 +196,17 @@ end architecture ;
 
 -- LCD module 
 -- buffer_creation
--- inputs : p1_score, p2_score	 		: in std_logic_vector(1 downto 0);
 -- inputs p1_win, p2_win				: in std_logic;
 -- outputs : char_buffer_80_chars		: out std_logic_vector((80 * 8) - 1 downto 0);
+
+-- LED module 
+-- inputs
+	-- data_in : in std_logic_vector(3 downto 0);
+-- outputs
+	-- segments_out : out std_logic_vector(6 downto 0);
+-- notes:
+	-- two instances, one for each player's score
+	-- either resize score or modify leddcd to take 2-bit data_in
 
 -- module for LCD display stuff
 -- char_buffer_80_chars							: IN	STD_LOGIC_VECTOR((80 * 8) - 1 DOWNTO 0);
@@ -99,7 +223,11 @@ end architecture ;
 
 -- key board
 
+-- actual key board
 
+-- keyboard mapper
+-- input: scan_code
+-- outputs: p1_speed, p2_speed: std_logic_vector (1 downto 0)
 
 -- CLOCK MODULES
 
@@ -112,5 +240,5 @@ end architecture ;
 
 -- questions
 	-- how to use PLL? (sys clock to our faster clock)
-	-- is numerical score going to LCD or seven-segment LEDs
+	-- is numerical score going to LCD or seven-segment LEDs?
 	-- should we care about ties?
