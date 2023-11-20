@@ -17,17 +17,21 @@ entity tank is
     generic(
         y_pos: std_logic_vector(9 downto 0);
         color: std_logic_vector(2 downto 0);
+        tank_width: unsigned(9 downto 0);
         max_x: unsigned(9 downto 0)
     );
     port(
         speed: in std_logic_vector(1 downto 0);
         reset, game_tick, start: in std_logic;
+        lost_game: in std_logic;
         x_pos_out, y_pos_out: out std_logic_vector(9 downto 0)
     );
 end tank;
 
 architecture tank_arch of tank is
-    type state_type is (idle, move_left, move_right);
+    -- Off screen moves the tank off the screen
+    -- Move right is the default state
+    type state_type is (off_screen, move_left, move_right);
     signal state: state_type;
     signal next_state: state_type;
     signal next_x_pos: unsigned(9 downto 0);
@@ -39,8 +43,9 @@ begin
     process(reset, game_tick)
     begin
         if reset = '1' then
-            state <= idle;
-            x_pos_int <= shift_left(max_x, 1);
+            -- Reset the tank to on screen, moving right
+            state <= move_right;
+            x_pos_int <= tank_width;
         elsif rising_edge(game_tick) then
             state <= next_state;
             x_pos_int <= next_x_pos;
@@ -50,16 +55,12 @@ begin
     -- Combinatorial process
     process(state, start)
     begin
-        speed_int <= unsigned(resize(unsigned(speed), 10));
+        -- Convert speed to a 10 bit unsigned, and multiply by 4 (speeds = 0, 4, 8, 12)
+        speed_int <= shift_left(unsigned(resize(unsigned(speed), 10)), 2);
         case state is
-            when idle =>
-                if start = '1' then
-                    next_state <= move_right;
-                    next_x_pos <= shift_right(max_x, 1);
-                else
-                    next_state <= idle;
-                    next_x_pos <= x_pos_int;
-                end if;
+            when off_screen =>
+                next_state <= off_screen;
+                next_x_pos <= shift_left(max_x, 1);
             when move_left =>
                 if x_pos_int - speed_int > 0 then
                     next_state <= move_left;
@@ -69,16 +70,17 @@ begin
                     next_x_pos <= (others => '0');
                 end if;
             when move_right =>
-                -- TODO: factor in the width of the tank
-                if x_pos_int + speed_int < max_x then
+                if x_pos_int + speed_int < (max_x - tank_width) then
                     next_state <= move_right;
                     next_x_pos <= x_pos_int + speed_int;
                 else
                     next_state <= move_left;
-                    next_x_pos <= max_x;
+                    -- NOTE! Optimization possible here;
+                    -- Can eliminate the subtraction by making max_x - tank_width a constant
+                    next_x_pos <= max_x - tank_width;
                 end if;
             when others =>
-                next_state <= idle;
+                next_state <= off_screen;
                 next_x_pos <= shift_left(max_x, 1);
         end case;
     end process;
