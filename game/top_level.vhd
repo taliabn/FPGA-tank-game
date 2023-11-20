@@ -63,12 +63,8 @@ architecture structural of top_level is
 
 begin
 
-	-- show_game_tick <= clock_30hz;
-	-- show_clk <= clk_50Mhz;
-	-- data_in_p1 <= "00" & p1_score;
-	-- data_in_p2 <= "00" & p2_score;
-	data_in_p1 <= char_buffer_80_chars(79 downto 76);
-	data_in_p2 <= char_buffer_80_chars(71 downto 68);
+	data_in_p1 <= "00" & p1_score;
+	data_in_p2 <= "00" & p2_score;
 	-- de2lcd has active low reset, everything else is using active high
 	lcd_reset <= not reset;
 
