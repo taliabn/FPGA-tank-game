@@ -52,8 +52,9 @@ begin
     begin
         if reset = '1' then
             state <= off_screen;
-            next_x_pos <= unsigned(initial_x_pos);
-            next_y_pos <= shift_left(max_y_val, 1);
+            x_pos_int <= shift_left(max_y_val, 1);
+            y_pos_int <= shift_left(max_y_val, 1);
+            -- report "bullet reset";
         elsif rising_edge(game_tick) then
             state <= next_state;
             x_pos_int <= next_x_pos;
@@ -61,7 +62,7 @@ begin
         end if;
     end process;
 
-    process(state, fire, is_collision, game_over)
+    process(state, fire, is_collision, game_over, x_pos_int, y_pos_int)
     begin
         next_state <= state;
         next_x_pos <= x_pos_int;
@@ -71,11 +72,15 @@ begin
             when off_screen =>
                 if game_over = '1' then
                     next_state <= win_state;
-                    next_y_pos <= shift_left(y_pos_int, 2);
+                    next_y_pos <= shift_left(max_y_val, 2);
                 elsif fire = '1' then
                     next_state <= normal;
                     next_x_pos <= unsigned(initial_x_pos);
                     next_y_pos <= unsigned(initial_y_pos);
+                else
+                    next_state <= off_screen;
+                    next_x_pos <= shift_left(max_y_val, 2);
+                    next_y_pos <= shift_left(max_y_val, 2);
                 end if;
             -- normal = bullet has been fired and is moving
             when normal =>
@@ -85,9 +90,13 @@ begin
                     next_state <= off_screen;
                 else
                     -- If the bullet has exited the screen, set it to off_screen
-                    if ((y_pos_int < speed_magnitude) or (y_pos_int > max_y_val)) then
+                    -- Unsigned comparisom, so <0 is just really big
+                    if (y_pos_int > max_y_val) then
                         next_state <= off_screen;
+                        next_x_pos <= shift_left(max_y_val, 2);
+                        next_y_pos <= shift_left(max_y_val, 2);
                     -- Direction = 1 means bullet is moving in the -y direction
+                    -- Direction = 0 means bullet is moving in the +y direction
                     elsif direction = '1' then
                         next_y_pos <= y_pos_int - speed_magnitude;
                     else
@@ -97,12 +106,18 @@ begin
             when win_state =>
                 if game_over = '1' then
                     next_state <= win_state;
-                    next_x_pos <= x_pos_int;
+                    next_x_pos <= shift_left(y_pos_int, 2);
                     next_y_pos <= shift_left(y_pos_int, 2);
                 end if;
             when others =>
                 next_state <= off_screen;
+                next_x_pos <= shift_left(max_y_val, 2);
+                next_y_pos <= shift_left(max_y_val, 2);
         end case;
+        -- display x_pos_int and y_pos_int;
+        -- report "bullet x_pos_int: " & integer'image(to_integer(x_pos_int));
+        -- report "bullet y_pos_int: " & integer'image(to_integer(y_pos_int));
+
     end process;
 
     x_pos_out <= std_logic_vector(x_pos_int);

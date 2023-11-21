@@ -14,15 +14,22 @@ use ieee.numeric_std.all;
 
 
 entity tank is
+    -- Tank X,Y should be set to the upper left corner of the tank, assuming that 0,0 is in the upper left corner of the screen
     generic(
+        -- Y position of tank
         y_pos: std_logic_vector(9 downto 0);
+        -- Color isn't really used, but it's here for completeness
         color: std_logic_vector(2 downto 0);
+        -- Width of tank
         tank_width: unsigned(9 downto 0);
-        max_x: unsigned(9 downto 0)
+        -- Max_X should be set to screen width
+        max_x: unsigned(9 downto 0);
+        -- Speed shift is used to multiply the speed input, performs a left shift by 2^speed_shift
+        speed_shift: unsigned(3 downto 0)
     );
     port(
         speed: in std_logic_vector(1 downto 0);
-        reset, game_tick, start: in std_logic;
+        reset, game_tick: in std_logic;
         lost_game: in std_logic;
         x_pos_out, y_pos_out: out std_logic_vector(9 downto 0)
     );
@@ -37,7 +44,6 @@ architecture tank_arch of tank is
     signal next_x_pos: unsigned(9 downto 0);
     signal x_pos_int: unsigned(9 downto 0);
 
-    signal speed_int : unsigned(9 downto 0);
 begin
     -- Clocked process
     process(reset, game_tick)
@@ -53,16 +59,17 @@ begin
     end process;
 
     -- Combinatorial process
-    process(state, start)
+    process(state, speed, x_pos_int)
+    variable speed_int : unsigned(9 downto 0);
     begin
         -- Convert speed to a 10 bit unsigned, and multiply by 4 (speeds = 0, 4, 8, 12)
-        speed_int <= shift_left(unsigned(resize(unsigned(speed), 10)), 2);
+        speed_int := shift_left(unsigned(resize(unsigned(speed), 10)), to_integer(speed_shift));
         case state is
             when off_screen =>
                 next_state <= off_screen;
                 next_x_pos <= shift_left(max_x, 1);
             when move_left =>
-                if x_pos_int - speed_int > 0 then
+                if (x_pos_int - speed_int > 0) and (x_pos_int - speed_int < max_x) then
                     next_state <= move_left;
                     next_x_pos <= x_pos_int - speed_int;
                 else
@@ -73,6 +80,8 @@ begin
                 if x_pos_int + speed_int < (max_x - tank_width) then
                     next_state <= move_right;
                     next_x_pos <= x_pos_int + speed_int;
+                    -- report "Input speed is " & integer'image(to_integer(unsigned(speed)));
+                    -- report "Moving right by "  & integer'image(to_integer(speed_int));
                 else
                     next_state <= move_left;
                     -- NOTE! Optimization possible here;
