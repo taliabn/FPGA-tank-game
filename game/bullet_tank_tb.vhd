@@ -5,6 +5,8 @@ use ieee.numeric_std.all;
 -- use WORK.bullet.all;
 -- use WORK.tank.all;
 
+-- NOTE! DOES NOT USE THE ACTUAL CONSTANTS!
+
 entity bullet_tank_tb is
 end bullet_tank_tb;
 
