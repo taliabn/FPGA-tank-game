@@ -8,7 +8,6 @@ entity ps2 is
 			reset : in std_logic;--, read : in std_logic;
 			scan_code : out std_logic_vector( 7 downto 0 );
 			scan_readyo : out std_logic;
-			segments_out_p1, segments_out_p2 : out std_logic_vector(6 downto 0);
 			hist3 : out std_logic_vector(7 downto 0);
 			hist2 : out std_logic_vector(7 downto 0);
 			hist1 : out std_logic_vector(7 downto 0);
@@ -66,19 +65,6 @@ pulser: oneshot port map(
    clk => clock_50MHz
 			);
 
-					
-leddcd_p1: leddcd
-	port map(
-		data_in => scan_code(3 downto 0),
-		segments_out => segments_out_p1
-		);
-				
-leddcd_p2: leddcd
-	port map(
-		data_in => scan_code(7 downto 4),
-		segments_out => segments_out_p2
-		);
-	
 
 scan_readyo <= scan2;
 scan_code <= scan_code2;
