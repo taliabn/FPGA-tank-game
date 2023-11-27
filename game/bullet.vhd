@@ -62,13 +62,23 @@ begin
         end if;
     end process;
 
-    process(state, fire, is_collision, game_over, x_pos_int, y_pos_int)
+    process(state, fire, is_collision, game_over, x_pos_int, y_pos_int, initial_x_pos, initial_y_pos)
     begin
         next_state <= state;
         next_x_pos <= x_pos_int;
         next_y_pos <= y_pos_int;
 
         case state is
+            -- when wait_on_fire => 
+            --     if ( fire = '1' ) then
+            --         next_state <= idle;
+            --     end if;
+                
+            -- when idle =>
+            --     if ( start = '1' ) then
+            --         next_state <= ;
+            --     end if;
+
             when off_screen =>
                 if game_over = '1' then
                     next_state <= win_state;

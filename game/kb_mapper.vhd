@@ -21,7 +21,8 @@ end entity keyboard_mapper;
 
 architecture behavior of keyboard_mapper is
 	signal fire_comb, fire_o : std_logic;
-	signal speed_prev, speed_o: std_logic_vector(1 downto 0) := (others => '0'); 
+	-- signal speed_prev  std_logic_vector(1 downto 0) := (others => '0'); , 
+	signal speed_o: std_logic_vector(1 downto 0) := (others => '0'); 
 	type t_state is (held, previously_released);
 	signal state, next_state: t_state;
 	constant SLOW_SPEED:  std_logic_vector(1 downto 0) := "00";
@@ -36,7 +37,7 @@ begin
         if ( reset = '1' ) then
 			-- on reset, assign speed to slow
             speed_o <= SLOW_SPEED;
-            speed_prev <= SLOW_SPEED;
+            -- speed_prev <= SLOW_SPEED;
 			fire_o <= '0';
 			state <= previously_released;
 		-- triggered when a key is pressed (scan_ready)

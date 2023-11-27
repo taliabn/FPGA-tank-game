@@ -16,7 +16,7 @@ entity pixelGenerator is
 		clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 		pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
 		red_out, green_out, blue_out					: out std_logic_vector(7 downto 0);
-		test_address : out std_logic_vector(2 downto 0);
+		-- test_address : out std_logic_vector(2 downto 0);
 		tank1_x, tank1_y, tank2_x, tank2_y				: in std_logic_vector(9 downto 0);
 		bullet1_x, bullet1_y, bullet2_x, bullet2_y 		: in std_logic_vector(9 downto 0)
 	);
@@ -58,9 +58,9 @@ begin
 	pixel_row_int <= to_integer(unsigned(pixel_row));
 	pixel_col_int <= to_integer(unsigned(pixel_column));
 	tank1_x_int <= to_integer(unsigned(tank1_x));
-	tank1_y_int <= to_integer(unsigned(tank1_y));
+	-- tank1_y_int <= to_integer(unsigned(tank1_y));
 	tank2_x_int <= to_integer(unsigned(tank2_x));
-	tank2_y_int <= to_integer(unsigned(tank2_y));
+	-- tank2_y_int <= to_integer(unsigned(tank2_y));
 	bullet1_x_int <= to_integer(unsigned(bullet1_x));
 	bullet1_y_int <= to_integer(unsigned(bullet1_y));
 	bullet2_x_int <= to_integer(unsigned(bullet2_x));
@@ -118,7 +118,7 @@ begin
 		
 	end process pixelDraw;	
 
-	test_address <= colorAddress;
+	-- test_address <= colorAddress;
 
 --------------------------------------------------------------------------------------------
 	

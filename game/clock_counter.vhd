@@ -9,23 +9,23 @@ USE IEEE.STD_LOGIC_1164.ALL;
 
 ENTITY clk30 IS
     PORT (clock_50Mhz : IN STD_LOGIC;
-          clock_30hz : OUT STD_LOGIC);
+          pulse : OUT STD_LOGIC);
 END clk30;
 
 ARCHITECTURE clk30_arch OF clk30 IS
-    SIGNAL counter : unsigned(23 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL counter : unsigned(20 DOWNTO 0) := (OTHERS => '0');
 
 BEGIN
     PROCESS (clock_50MHz)
+        constant ZEROS : std_logic_vector(counter'range) := (OTHERS => '0');
     BEGIN
         IF (rising_edge(clock_50MHz)) THEN
-            IF (counter >= 1666667) THEN
-                clock_30hz <= '1';
-                counter <= (OTHERS => '0');
-            ELSE
-                clock_30hz <= '0';
-                counter <= counter + 1;
-            END IF;
+            counter <= std_logic_vector(unsigned(counter) + to_unsigned(1,counter'length));
+            if ( counter = ZEROS ) THEN
+                pulse <= '1';
+            else 
+                pulse <= '0';
+            end if;
         END IF;
     END PROCESS;
 END clk30_arch;
