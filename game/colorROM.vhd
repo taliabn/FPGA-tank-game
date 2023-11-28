@@ -36,8 +36,8 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.all;
 
-LIBRARY altera_mf;
-USE altera_mf.all;
+-- LIBRARY altera_mf;
+-- USE altera_mf.all;
 
 ENTITY colorROM IS
 	PORT

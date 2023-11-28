@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 -- collision detection (two instances)
 -- inputs:
 	-- obja_x, obja_y, objb_x objb_y: in std_logic_vector(9 downto 0)
-	-- reset, game_pulse: in std_logic
+	-- reset, clk: in std_logic
 -- outputs:
 	-- is_collision: out std_logic
 -- notes:
@@ -25,7 +25,7 @@ entity collision_check is
     );
     port(
         obja_x, obja_y, objb_x, objb_y: in std_logic_vector(9 downto 0);
-        reset, game_pulse: in std_logic;
+        reset, clk: in std_logic;
         is_collision: out std_logic
     );
 end entity;
@@ -45,11 +45,11 @@ begin
     objb_y1 <= unsigned(objb_y);
     objb_y2 <= unsigned(objb_y) + objb_height;
 
-    process(reset, game_pulse)
+    process(reset, clk)
     begin
         if reset = '1' then
             is_collision <= '0';
-        elsif rising_edge(game_pulse) then
+        elsif rising_edge(clk) then
             -- NOTE: This is a very naive implementation of collision detection
             -- NOTE: We probably could make this more optimized somehow
             if (obja_x1 <= objb_x2 and obja_x2 >= objb_x1) and

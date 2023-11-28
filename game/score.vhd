@@ -7,7 +7,7 @@ entity score is
 		win_score : unsigned(2 downto 1) := "11"
 	);
 	port (
-		p1_hit, p2_hit, reset, game_pulse: in std_logic;
+		p1_hit, p2_hit, reset, clk: in std_logic;
 		p1_score, p2_score : out std_logic_vector(1 downto 0);
 		p1_win, p2_win : out std_logic
 	);
@@ -22,7 +22,7 @@ architecture behavior of score is
 
 begin
 
-    clocked_process : process(game_pulse, reset)
+    clocked_process : process(clk, reset)
     begin
         if ( reset = '1' ) then
 			-- on reset, assign all outputs zero
@@ -31,7 +31,7 @@ begin
             p1_score_o <= (others => '0');
             p2_score_o <= (others => '0');
 			state <= gameplay;
-        elsif ( rising_edge(game_pulse) ) then
+        elsif ( rising_edge(clk) ) then
 			state <= next_state;
 			p1_score_o <= p1_score_comb;
 			p2_score_o <= p2_score_comb;

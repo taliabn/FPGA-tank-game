@@ -32,7 +32,7 @@ architecture structural of top_level is
 			win_score : unsigned(2 downto 1)
 		);
 		port (
-			p1_hit, p2_hit, reset, game_pulse: in std_logic;
+			p1_hit, p2_hit, reset, clk: in std_logic;
 			p1_score, p2_score : out std_logic_vector(1 downto 0);
 			p1_win, p2_win : out std_logic
 		);
@@ -82,7 +82,7 @@ architecture structural of top_level is
         );
         port(
             obja_x, obja_y, objb_x, objb_y: in std_logic_vector(9 downto 0);
-            reset, game_pulse: in std_logic;
+            reset, clk: in std_logic;
             is_collision: out std_logic
         );
     end component collision_check;
@@ -223,7 +223,7 @@ begin
 			p1_hit => is_collision_bullet2_tank1,
 			p2_hit => is_collision_bullet1_tank2,
 			reset => inv_reset,
-			game_pulse => game_pulse,
+			clk => clk_50Mhz,
 			p1_score => p1_score,
 			p2_score => p2_score,
 			p1_win => p1_win,
@@ -321,7 +321,7 @@ begin
 			objb_x => x_pos_bullet2,
 			objb_y => y_pos_bullet2,
 			reset => inv_reset,
-			game_pulse => game_pulse,
+			clk => clk_50Mhz,
 			is_collision => is_collision_bullet2_tank1
 		);
 
@@ -338,7 +338,7 @@ begin
 			objb_x => x_pos_bullet1,
 			objb_y => y_pos_bullet1,
 			reset => inv_reset,
-			game_pulse => game_pulse,
+			clk => clk_50Mhz,
 			is_collision => is_collision_bullet1_tank2
 		);
 
