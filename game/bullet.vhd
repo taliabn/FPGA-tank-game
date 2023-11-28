@@ -69,11 +69,11 @@ begin
         next_y_pos <= y_pos_int;
 
         case state is
-            -- when wait_on_fire => 
+            -- when wait_on_fire =>
             --     if ( fire = '1' ) then
             --         next_state <= idle;
             --     end if;
-                
+
             -- when idle =>
             --     if ( start = '1' ) then
             --         next_state <= ;
@@ -82,7 +82,7 @@ begin
             --     if ( fire = '1' ) then
             --         next_state <= idle;
             --     end if;
-            -- Idle is essentiall wait for fire OR game_over 
+            -- Idle is essentiall wait for fire OR game_over
             when idle =>
                 if game_over = '1' then
                     next_state <= win_state;
@@ -103,7 +103,7 @@ begin
                 elsif is_collision = '1' then
                     next_state <= idle;
                 else
-                    if (game_pulse = '1')
+                    if (game_pulse = '1') then
                         -- If the bullet has exited the screen, set it to idle
                         -- Unsigned comparisom, so <0 is just really big
                         if (y_pos_int > max_y_val) then

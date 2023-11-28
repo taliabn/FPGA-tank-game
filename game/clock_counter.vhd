@@ -17,13 +17,13 @@ ARCHITECTURE clk30_arch OF clk30 IS
 
 BEGIN
     PROCESS (clock_50MHz)
-        constant ZEROS : std_logic_vector(counter'range) := (OTHERS => '0');
+        constant ZEROS : unsigned(counter'range) := (OTHERS => '0');
     BEGIN
         IF (rising_edge(clock_50MHz)) THEN
-            counter <= std_logic_vector(unsigned(counter) + to_unsigned(1,counter'length));
+            counter <= unsigned(counter + to_unsigned(1,counter'length));
             if ( counter = ZEROS ) THEN
                 pulse <= '1';
-            else 
+            else
                 pulse <= '0';
             end if;
         END IF;
