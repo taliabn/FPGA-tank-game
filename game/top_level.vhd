@@ -194,6 +194,7 @@ architecture structural of top_level is
 	signal data_in_p2 													: std_logic_vector(3 downto 0);
 	signal p1_speed, p2_speed											: std_logic_vector(1 downto 0);
 	signal x_pos_bullet1, y_pos_bullet1, x_pos_bullet2, y_pos_bullet2	: std_logic_vector(9 downto 0);
+	signal initial_x_pos_bullet1, initial_x_pos_bullet2					: std_logic_vector(9 downto 0);
 	signal x_pos_tank1, y_pos_tank1, x_pos_tank2, y_pos_tank2 			: std_logic_vector(9 downto 0);
 	signal p1_fire, p2_fire 											: std_logic;
 	signal is_collision_bullet1_tank2, is_collision_bullet2_tank1 		: std_logic;
@@ -266,6 +267,7 @@ begin
 			clk => clk_50Mhz
         );
 
+	initial_x_pos_bullet1 <= std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
     bullet1: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -274,7 +276,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
+            initial_x_pos => initial_x_pos_bullet1,
             initial_y_pos => y_pos_tank1,
             reset => inv_reset,
             fire => p1_fire,
@@ -286,6 +288,7 @@ begin
 			clk => clk_50Mhz
         );
 
+	initial_x_pos_bullet2 <= std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
 	bullet2: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -294,7 +297,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
+            initial_x_pos => initial_x_pos_bullet2,
             initial_y_pos => y_pos_tank2,
             reset => inv_reset,
             fire => p2_fire,
