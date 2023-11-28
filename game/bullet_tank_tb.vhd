@@ -23,6 +23,7 @@ architecture behavioral of bullet_tank_tb is
             speed: in std_logic_vector(1 downto 0);
             reset, game_pulse: in std_logic;
             lost_game: in std_logic;
+            clk: in std_logic;
             x_pos_out, y_pos_out: out std_logic_vector(9 downto 0)
         );
     end component tank;
@@ -39,6 +40,7 @@ architecture behavioral of bullet_tank_tb is
             initial_x_pos, initial_y_pos : in std_logic_vector(9 downto 0);
             reset, fire, game_pulse, is_collision : in std_logic;
             game_over : in std_logic;
+            clk : in std_logic;
             x_pos_out, y_pos_out : out std_logic_vector(9 downto 0)
         );
     end component bullet;
@@ -77,7 +79,8 @@ architecture behavioral of bullet_tank_tb is
             game_pulse => TB_game_pulse,
             lost_game => TB_lost_game,
             x_pos_out => TB_tank_x_pos_out,
-            y_pos_out => TB_tank_y_pos_out
+            y_pos_out => TB_tank_y_pos_out,
+            clk => clk
         );
 
         dut_bullet_a: bullet
@@ -96,7 +99,8 @@ architecture behavioral of bullet_tank_tb is
             is_collision => TB_is_collision_bullet,
             game_over => TB_game_over_bullet,
             x_pos_out => TB_bullet_x_pos_out,
-            y_pos_out => TB_bullet_y_pos_out
+            y_pos_out => TB_bullet_y_pos_out,
+            clk => clk
         );
 
         process is
@@ -125,7 +129,6 @@ architecture behavioral of bullet_tank_tb is
             TB_is_collision_bullet <= '0';
             TB_game_over_bullet <= '0';
 
-            clk <= '0';
             wait for clk_period;
 
             -- Send reset signal to tank and bullet
@@ -151,10 +154,6 @@ architecture behavioral of bullet_tank_tb is
             wait for clk_period;
             TB_game_pulse <= '0';
             wait for clk_period;
-            TB_game_pulse <= '1';
-            wait for clk_period;
-            TB_game_pulse <= '0';
-            wait for clk_period;
 
             -- Bullet should be off screen
             assert (TB_bullet_y_pos_out > std_logic_vector(to_unsigned(200, 10))) report "Bullet y position is not off screen" severity error;
@@ -171,18 +170,21 @@ architecture behavioral of bullet_tank_tb is
             TB_game_pulse <= '0';
             wait for clk_period;
 
+            -- Tank should have moved 4 pixels to the right to x = 48
             assert (TB_bullet_y_pos_out > std_logic_vector(to_unsigned(200, 10))) report "Bullet y position is not off screen" severity error;
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(48, 10))) report "Tank x position is not expected" severity error;
 
             assert (TB_tank_y_pos_out = std_logic_vector(to_unsigned(1, 10))) report "Tank y position is not 1" severity error;
 
-            -- Fire bullet
-            TB_fire_bullet <= '1';
-
             TB_game_pulse <= '1';
             wait for clk_period;
             TB_game_pulse <= '0';
             wait for clk_period;
+            -- Tick again, tank x = 52
+
+            -- Fire bullet, x=52, y=1
+            TB_fire_bullet <= '1';
+
             TB_game_pulse <= '1';
             wait for clk_period;
             TB_game_pulse <= '0';
@@ -193,10 +195,10 @@ architecture behavioral of bullet_tank_tb is
             -- Bullet should be at the same x position as the tank in the previous step
             -- Print out bullet x position and y
             -- report "TankX: " & integer'image(to_integer(unsigned(TB_tank_x_pos_out))) & " TankY: " & integer'image(to_integer(unsigned(TB_tank_y_pos_out))) severity note;
-            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(48, 10))) report "Bullet x position is not expected" severity error;
+            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(52, 10))) report "Bullet x position is not expected" severity error;
             assert (TB_bullet_y_pos_out = std_logic_vector(to_unsigned(1, 10))) report "Bullet y position is not expected" severity error;
 
-            -- Tank should have moved 4*2 = 8 pixels to the right
+            -- Tank should have moved 4 pixels to the right
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(56, 10))) report "Tank x position is not expected" severity error;
 
             -- Perform another game tick
@@ -206,7 +208,7 @@ architecture behavioral of bullet_tank_tb is
             wait for clk_period;
 
             -- Bullet should have moved 10 pixels up
-            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(48, 10))) report "Bullet x position is not expected" severity error;
+            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(52, 10))) report "Bullet x position is not expected" severity error;
             assert (TB_bullet_y_pos_out = std_logic_vector(to_unsigned(11, 10))) report "Bullet y position is not expected" severity error;
 
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(60, 10))) report "Tank x position is not expected" severity error;
@@ -220,7 +222,7 @@ architecture behavioral of bullet_tank_tb is
             end loop;
 
             -- Bullet should have moved 10*10 = 100 pixels up
-            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(48, 10))) report "Bullet x position is not expected" severity error;
+            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(52, 10))) report "Bullet x position is not expected" severity error;
             assert (TB_bullet_y_pos_out = std_logic_vector(to_unsigned(111, 10))) report "Bullet y position is not expected" severity error;
 
             -- Tank should have moved 4*10 = 40 pixels to the right
@@ -236,9 +238,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Bullet should have moved 10*10 = 110 pixels up
             -- It now should be at y = 221, which is above the max_y_val of 200
-            -- Therefore it should be off screen, at y = 800, x = 800
-            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(800, 10))) report "Bullet x position is not expected" severity error;
-            assert (TB_bullet_y_pos_out = std_logic_vector(to_unsigned(800, 10))) report "Bullet y position is not expected" severity error;
+            -- Therefore it should be off screen, at y = 1000, x = 1000
+            assert (TB_bullet_x_pos_out = std_logic_vector(to_unsigned(1000, 10))) report "Bullet x position is not expected" severity error;
+            assert (TB_bullet_y_pos_out = std_logic_vector(to_unsigned(1000, 10))) report "Bullet y position is not expected" severity error;
 
             -- Tank should have moved 4*10 = 40 pixels to the right
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(140, 10))) report "Tank x position is not expected" severity error;
@@ -252,7 +254,7 @@ architecture behavioral of bullet_tank_tb is
             TB_game_pulse <= '0';
             wait for clk_period;
             -- Tank should have moved 4 pixels to the right
-            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(144, 10))) report "Tank x position is not expected" severity error;
+            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(152, 10))) report "Tank x position is not expected" severity error;
 
             -- Cycle through 1 tick
             TB_game_pulse <= '1';
@@ -260,7 +262,7 @@ architecture behavioral of bullet_tank_tb is
             TB_game_pulse <= '0';
             wait for clk_period;
             -- Tank should have moved 12 pixels to the right
-            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(156, 10))) report "Tank x position is not expected" severity error;
+            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(164, 10))) report "Tank x position is not expected" severity error;
 
             -- Cycle through 2 ticks
             for i in 1 to 2 loop
@@ -271,7 +273,7 @@ architecture behavioral of bullet_tank_tb is
             end loop;
 
             -- Tank should have moved 12*2 = 24 pixels to the right
-            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(180, 10))) report "Tank x position is not expected" severity error;
+            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(188, 10))) report "Tank x position is not expected" severity error;
 
             -- Cycle through 19 ticks
             for i in 1 to 19 loop
@@ -282,7 +284,7 @@ architecture behavioral of bullet_tank_tb is
             end loop;
 
             -- Tank should have moved 12*19 = 228 pixels to the right
-            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(408, 10))) report "Tank x position is not expected" severity error;
+            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(410, 10))) report "Tank x position is not expected" severity error;
 
             -- Max x is 450, width of tank is 40, so tank should be off screen at next tick, and bounce the other way
             -- This means that it should be at 410
@@ -291,7 +293,7 @@ architecture behavioral of bullet_tank_tb is
             TB_game_pulse <= '0';
             wait for clk_period;
 
-            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(410, 10))) report "Tank x position is not expected" severity error;
+            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(398, 10))) report "Tank x position is not expected" severity error;
 
             -- Tank should be going left now
 
@@ -304,17 +306,17 @@ architecture behavioral of bullet_tank_tb is
             end loop;
 
             -- Tank should have moved 12*30 = 360 pixels to the left
-            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(50, 10))) report "Tank x position is not expected" severity error;
+            assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(38, 10))) report "Tank x position is not expected" severity error;
 
             -- Loop 5 times, now it should be at the far left
-            for i in 1 to 5 loop
+            for i in 1 to 4 loop
                 TB_game_pulse <= '1';
                 wait for clk_period;
                 TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 
-            -- Tank should have moved 12*5 = 60 pixels to the left, but there's only 50 pixels, so snap to 0
+            -- Tank should have moved 12*4 = 48 pixels to the left, but there's only 50 pixels, so snap to 0
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(0, 10))) report "Tank x position is not expected" severity error;
 
             -- Cycle through 30 ticks
@@ -329,8 +331,7 @@ architecture behavioral of bullet_tank_tb is
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(360, 10))) report "Tank x position is not expected" severity error;
 
             -- report "BulletX: " & integer'image(to_integer(unsigned(TB_bullet_x_pos_out))) & " BulletY: " & integer'image(to_integer(unsigned(TB_bullet_y_pos_out))) severity note;
-            report "TankX: " & integer'image(to_integer(unsigned(TB_tank_x_pos_out))) & " TankY: " & integer'image(to_integer(unsigned(TB_tank_y_pos_out))) severity note;
-
+            -- report "TankX: " & integer'image(to_integer(unsigned(TB_tank_x_pos_out))) & " TankY: " & integer'image(to_integer(unsigned(TB_tank_y_pos_out))) severity note;
 
             finished <= '1';
             assert false report "Ending" severity note;
