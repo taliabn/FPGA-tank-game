@@ -6,7 +6,7 @@ use WORK.bullet_tank_const.all;
 
 
 
--- ghdl -a --workdir=work -g -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd
+-- ghdl -a --workdir=work -g -fexplicit -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd
 
 entity top_level is
   port (
