@@ -21,7 +21,7 @@ architecture behavioral of bullet_tank_tb is
         );
         port(
             speed: in std_logic_vector(1 downto 0);
-            reset, game_tick: in std_logic;
+            reset, game_pulse: in std_logic;
             lost_game: in std_logic;
             x_pos_out, y_pos_out: out std_logic_vector(9 downto 0)
         );
@@ -37,14 +37,14 @@ architecture behavioral of bullet_tank_tb is
         );
         port (
             initial_x_pos, initial_y_pos : in std_logic_vector(9 downto 0);
-            reset, fire, game_tick, is_collision : in std_logic;
+            reset, fire, game_pulse, is_collision : in std_logic;
             game_over : in std_logic;
             x_pos_out, y_pos_out : out std_logic_vector(9 downto 0)
         );
     end component bullet;
 
     signal TB_speed : std_logic_vector(1 downto 0) := "00";
-    signal TB_reset, TB_game_tick : std_logic := '0';
+    signal TB_reset, TB_game_pulse : std_logic := '0';
     signal TB_lost_game : std_logic := '0';
     signal TB_tank_x_pos_out, TB_tank_y_pos_out : std_logic_vector(9 downto 0) := (others => '0');
 
@@ -74,7 +74,7 @@ architecture behavioral of bullet_tank_tb is
         port map(
             speed => TB_speed,
             reset => TB_reset,
-            game_tick => TB_game_tick,
+            game_pulse => TB_game_pulse,
             lost_game => TB_lost_game,
             x_pos_out => TB_tank_x_pos_out,
             y_pos_out => TB_tank_y_pos_out
@@ -92,7 +92,7 @@ architecture behavioral of bullet_tank_tb is
             initial_y_pos => TB_tank_y_pos_out,
             reset => TB_reset,
             fire => TB_fire_bullet,
-            game_tick => TB_game_tick,
+            game_pulse => TB_game_pulse,
             is_collision => TB_is_collision_bullet,
             game_over => TB_game_over_bullet,
             x_pos_out => TB_bullet_x_pos_out,
@@ -118,7 +118,7 @@ architecture behavioral of bullet_tank_tb is
             -- Set all inputs to 0
             TB_speed <= "00";
             TB_reset <= '0';
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             TB_lost_game <= '0';
 
             TB_fire_bullet <= '0';
@@ -131,9 +131,9 @@ architecture behavioral of bullet_tank_tb is
             -- Send reset signal to tank and bullet
             TB_reset <= '1';
 
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
 
             -- Bullet should be off screen
             -- report "BulletX: " & integer'image(to_integer(unsigned(TB_bullet_x_pos_out))) & " BulletY: " & integer'image(to_integer(unsigned(TB_bullet_y_pos_out))) severity note;
@@ -147,13 +147,13 @@ architecture behavioral of bullet_tank_tb is
             TB_reset <= '0';
             TB_speed <= "01";
 
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
 
             -- Bullet should be off screen
@@ -166,9 +166,9 @@ architecture behavioral of bullet_tank_tb is
             -- report "Tank x position is " & integer'image(to_integer(unsigned(TB_tank_x_pos_out))) severity note;
 
             -- Perform another game tick
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
 
             assert (TB_bullet_y_pos_out > std_logic_vector(to_unsigned(200, 10))) report "Bullet y position is not off screen" severity error;
@@ -179,13 +179,13 @@ architecture behavioral of bullet_tank_tb is
             -- Fire bullet
             TB_fire_bullet <= '1';
 
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
 
             TB_fire_bullet <= '0';
@@ -200,9 +200,9 @@ architecture behavioral of bullet_tank_tb is
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(56, 10))) report "Tank x position is not expected" severity error;
 
             -- Perform another game tick
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
 
             -- Bullet should have moved 10 pixels up
@@ -213,9 +213,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Cycle through 10 game ticks
             for i in 1 to 10 loop
-                TB_game_tick <= '1';
+                TB_game_pulse <= '1';
                 wait for clk_period;
-                TB_game_tick <= '0';
+                TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 
@@ -228,9 +228,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Cycle through 10 game ticks
             for i in 1 to 10 loop
-                TB_game_tick <= '1';
+                TB_game_pulse <= '1';
                 wait for clk_period;
-                TB_game_tick <= '0';
+                TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 
@@ -247,26 +247,26 @@ architecture behavioral of bullet_tank_tb is
             TB_speed <= "11";
 
             -- Cycle through 1 tick
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
             -- Tank should have moved 4 pixels to the right
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(144, 10))) report "Tank x position is not expected" severity error;
 
             -- Cycle through 1 tick
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
             -- Tank should have moved 12 pixels to the right
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(156, 10))) report "Tank x position is not expected" severity error;
 
             -- Cycle through 2 ticks
             for i in 1 to 2 loop
-                TB_game_tick <= '1';
+                TB_game_pulse <= '1';
                 wait for clk_period;
-                TB_game_tick <= '0';
+                TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 
@@ -275,9 +275,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Cycle through 19 ticks
             for i in 1 to 19 loop
-                TB_game_tick <= '1';
+                TB_game_pulse <= '1';
                 wait for clk_period;
-                TB_game_tick <= '0';
+                TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 
@@ -286,9 +286,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Max x is 450, width of tank is 40, so tank should be off screen at next tick, and bounce the other way
             -- This means that it should be at 410
-            TB_game_tick <= '1';
+            TB_game_pulse <= '1';
             wait for clk_period;
-            TB_game_tick <= '0';
+            TB_game_pulse <= '0';
             wait for clk_period;
 
             assert (TB_tank_x_pos_out = std_logic_vector(to_unsigned(410, 10))) report "Tank x position is not expected" severity error;
@@ -297,9 +297,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Cycle through 30 ticks
             for i in 1 to 30 loop
-                TB_game_tick <= '1';
+                TB_game_pulse <= '1';
                 wait for clk_period;
-                TB_game_tick <= '0';
+                TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 
@@ -308,9 +308,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Loop 5 times, now it should be at the far left
             for i in 1 to 5 loop
-                TB_game_tick <= '1';
+                TB_game_pulse <= '1';
                 wait for clk_period;
-                TB_game_tick <= '0';
+                TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 
@@ -319,9 +319,9 @@ architecture behavioral of bullet_tank_tb is
 
             -- Cycle through 30 ticks
             for i in 1 to 30 loop
-                TB_game_tick <= '1';
+                TB_game_pulse <= '1';
                 wait for clk_period;
-                TB_game_tick <= '0';
+                TB_game_pulse <= '0';
                 wait for clk_period;
             end loop;
 

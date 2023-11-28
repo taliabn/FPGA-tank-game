@@ -16,7 +16,7 @@ entity pixelGenerator is
 		clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 		pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
 		red_out, green_out, blue_out					: out std_logic_vector(7 downto 0);
-		test_address : out std_logic_vector(2 downto 0);
+		-- test_address : out std_logic_vector(2 downto 0);
 		tank1_x, tank1_y, tank2_x, tank2_y				: in std_logic_vector(9 downto 0);
 		bullet1_x, bullet1_y, bullet2_x, bullet2_y 		: in std_logic_vector(9 downto 0)
 	);
@@ -30,8 +30,8 @@ architecture behavioral of pixelGenerator is
 	constant color_bullet1	: std_logic_vector(2 downto 0) := "011"; -- yellow
 	constant color_magenta 	: std_logic_vector(2 downto 0) := "100";
 	constant color_cyan 	: std_logic_vector(2 downto 0) := "101";
-	constant color_black 	: std_logic_vector(2 downto 0) := "110";
-	constant color_bg		: std_logic_vector(2 downto 0) := "111"; -- white
+	constant color_bg 	: std_logic_vector(2 downto 0) := "110"; -- black
+	constant color_white		: std_logic_vector(2 downto 0) := "111"; -- white
 	
 	component colorROM is
 		port(
@@ -50,7 +50,10 @@ architecture behavioral of pixelGenerator is
 begin
 
 --------------------------------------------------------------------------------------------
-	
+	-- color <= others => '1';
+	-- red_out <= "11111111";
+	-- green_out <= "11111111";
+	-- blue_out <= "11111111";
 	red_out <= color(23 downto 16);
 	green_out <= color(15 downto 8);
 	blue_out <= color(7 downto 0);
@@ -58,9 +61,9 @@ begin
 	pixel_row_int <= to_integer(unsigned(pixel_row));
 	pixel_col_int <= to_integer(unsigned(pixel_column));
 	tank1_x_int <= to_integer(unsigned(tank1_x));
-	tank1_y_int <= to_integer(unsigned(tank1_y));
+	-- tank1_y_int <= to_integer(unsigned(tank1_y));
 	tank2_x_int <= to_integer(unsigned(tank2_x));
-	tank2_y_int <= to_integer(unsigned(tank2_y));
+	-- tank2_y_int <= to_integer(unsigned(tank2_y));
 	bullet1_x_int <= to_integer(unsigned(bullet1_x));
 	bullet1_y_int <= to_integer(unsigned(bullet1_y));
 	bullet2_x_int <= to_integer(unsigned(bullet2_x));
@@ -118,7 +121,7 @@ begin
 		
 	end process pixelDraw;	
 
-	test_address <= colorAddress;
+	-- test_address <= colorAddress;
 
 --------------------------------------------------------------------------------------------
 	

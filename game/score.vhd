@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity score is
 	port (
-		p1_hit, p2_hit, reset, game_tick: in std_logic;
+		p1_hit, p2_hit, reset, game_pulse: in std_logic;
 		p1_score, p2_score : out std_logic_vector(1 downto 0);
 		p1_win, p2_win : out std_logic
 	);
@@ -13,14 +13,14 @@ end entity score;
 architecture behavior of score is
 	signal p1_score_comb, p2_score_comb, p1_score_o, p2_score_o : std_logic_vector(1 downto 0) := (others => '0'); 
 	signal p1_win_comb, p2_win_comb, p1_win_o, p2_win_o : std_logic := '0'; 
-	constant two_const: unsigned(1 downto 0) := (1 => '1', others => '0');
+	constant two_const: unsigned(1 downto 0) := "10";
 
 	type t_state is (gameplay, win);
 	signal state, next_state: t_state;
 
 begin
 
-    clocked_process : process(game_tick, reset)
+    clocked_process : process(game_pulse, reset)
     begin
         if ( reset = '1' ) then
 			-- on reset, assign all outputs zero
@@ -29,7 +29,7 @@ begin
             p1_score_o <= (others => '0');
             p2_score_o <= (others => '0');
 			state <= gameplay;
-        elsif ( rising_edge(game_tick) ) then
+        elsif ( rising_edge(game_pulse) ) then
 			state <= next_state;
 			p1_score_o <= p1_score_comb;
 			p2_score_o <= p2_score_comb;

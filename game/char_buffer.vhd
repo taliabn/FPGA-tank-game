@@ -4,7 +4,7 @@ use ieee.numeric_std.all ;
 
 entity char_buffer is
 	port (
-		p1_win, p2_win, reset, game_tick : in std_logic;
+		p1_win, p2_win, reset, game_pulse : in std_logic;
 		char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
 	) ;
 end char_buffer ; 
@@ -18,13 +18,13 @@ architecture behavior of char_buffer is
 
 begin
 
-    clocked_process : process(game_tick, reset)
+    clocked_process : process(game_pulse, reset)
     begin
         if ( reset = '1' ) then
 			-- on reset, assign buffer to be all spaces
             buffer_o <= X"20202020202020202020";
 			state <= gameplay;
-        elsif ( rising_edge(game_tick) ) then
+        elsif ( rising_edge(game_pulse) ) then
 			state <= next_state;
 			buffer_o <= buffer_comb;
 		end if;
