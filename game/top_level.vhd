@@ -28,6 +28,9 @@ architecture structural of top_level is
 
 	-- MODEL
 	component score is
+		generic(
+			win_score : unsigned(2 downto 1)
+		);
 		port (
 			p1_hit, p2_hit, reset, game_pulse: in std_logic;
 			p1_score, p2_score : out std_logic_vector(1 downto 0);
@@ -212,6 +215,10 @@ begin
 	game_pulse_o <= game_pulse;
 	p1_fire_o <= p1_fire;
 	score_unit: score
+		generic map(
+			-- TO MAKE TESTING EASIER, TEMPORARILY SET WIN CONDITION TO 1 POINT
+			win_score => "01" 
+		)
 		port map(
 			p1_hit => is_collision_bullet2_tank1,
 			p2_hit => is_collision_bullet1_tank2,
