@@ -149,14 +149,6 @@ architecture structural of top_level is
 	end component keyboard_mapper;
 
 	component pixelGenerator is
-		generic(
-			SCREEN_WIDTH	: natural := 640;
-			SCREEN_HEIGHT	: natural := 480;
-			TANK_HEIGHT		: natural := 40;
-			TANK_WIDTH		: natural := 60;
-			BULLET_HEIGHT	: natural := 25;
-			BULLET_WIDTH	: natural := 10
-		);
 		port(
 			clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 			pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
@@ -452,14 +444,6 @@ begin
 		);
 	-- VGA stuff
 	videoGen : pixelGenerator
-		generic map (
-			SCREEN_WIDTH=> SCREEN_WIDTH,
-			SCREEN_HEIGHT => SCREEN_HEIGHT,
-			TANK_HEIGHT	=> TANK_HEIGHT,
-			TANK_WIDTH => TANK_WIDTH,
-			BULLET_HEIGHT => BULLET_HEIGHT,
-			BULLET_WIDTH => BULLET_WIDTH
-		)
 		port map(
 			clk => clk_50Mhz,
 			ROM_clk => VGA_clk_int,

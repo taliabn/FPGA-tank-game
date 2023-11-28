@@ -3,20 +3,14 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
+use WORK.bullet_tank_const.all;
+
 entity pixelGenerator is
-	generic(
-		SCREEN_WIDTH	: natural := 640;
-		SCREEN_HEIGHT	: natural := 480;
-		TANK_HEIGHT		: natural := 40;
-		TANK_WIDTH		: natural := 60;
-		BULLET_HEIGHT	: natural := 25;
-		BULLET_WIDTH	: natural := 10
-	);
 	port(
 		clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 		pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
 		red_out, green_out, blue_out					: out std_logic_vector(7 downto 0);
-		-- test_address : out std_logic_vector(2 downto 0);
+		-- test_address 									: out std_logic_vector(2 downto 0);
 		tank1_x, tank1_y, tank2_x, tank2_y				: in std_logic_vector(9 downto 0);
 		bullet1_x, bullet1_y, bullet2_x, bullet2_y 		: in std_logic_vector(9 downto 0)
 	);
@@ -30,8 +24,8 @@ architecture behavioral of pixelGenerator is
 	constant color_bullet1	: std_logic_vector(2 downto 0) := "011"; -- yellow
 	constant color_magenta 	: std_logic_vector(2 downto 0) := "100";
 	constant color_cyan 	: std_logic_vector(2 downto 0) := "101";
-	constant color_bg 	: std_logic_vector(2 downto 0) := "110"; -- black
-	constant color_white		: std_logic_vector(2 downto 0) := "111"; -- white
+	constant color_bg 		: std_logic_vector(2 downto 0) := "110"; -- black
+	constant color_white	: std_logic_vector(2 downto 0) := "111"; -- white
 	
 	component colorROM is
 		port(
