@@ -17,14 +17,14 @@ entity top_level is
 	LCD_RW						: BUFFER STD_LOGIC;
 	DATA_BUS				: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0);
 	segments_out_p1, segments_out_p2 : out std_logic_vector(6 downto 0);
-	VGA_RED, VGA_GREEN, VGA_BLUE 					: out std_logic_vector(7 downto 0); 
+	VGA_RED, VGA_GREEN, VGA_BLUE 					: out std_logic_vector(7 downto 0);
 	HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK		: out std_logic
   );
-end top_level ; 
+end top_level ;
 
 architecture structural of top_level is
 
-	-- MODEL 
+	-- MODEL
 	component score is
 		port (
 			p1_hit, p2_hit, reset, game_tick: in std_logic;
@@ -32,7 +32,7 @@ architecture structural of top_level is
 			p1_win, p2_win : out std_logic
 		);
 	end component score;
-	
+
     component tank is
 		generic(
 			y_pos: std_logic_vector(9 downto 0);
@@ -45,6 +45,7 @@ architecture structural of top_level is
 			speed: in std_logic_vector(1 downto 0);
 			reset, game_tick: in std_logic;
 			lost_game: in std_logic;
+			clk: in std_logic;
 			x_pos_out, y_pos_out: out std_logic_vector(9 downto 0)
 		);
 	end component tank;
@@ -87,8 +88,8 @@ architecture structural of top_level is
 			p1_win, p2_win, reset, game_tick : in std_logic;
 			char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
 		);
-	end component char_buffer ; 
-				
+	end component char_buffer ;
+
 	component leddcd is
 		port(
 			data_in : in std_logic_vector(3 downto 0);
@@ -96,7 +97,7 @@ architecture structural of top_level is
 		   );
 	end component leddcd;
 
-	component de2lcd is 
+	component de2lcd is
 		port (
 			reset, clk_50Mhz				: IN	STD_LOGIC;
 			CHAR_BUFFER : IN STD_LOGIC_VECTOR(79 DOWNTO 0);
@@ -109,8 +110,8 @@ architecture structural of top_level is
 		port(
 			CLOCK_50 									: in std_logic;
 			RESET_N										: in std_logic;
-			--VGA 
-			VGA_RED, VGA_GREEN, VGA_BLUE 				: out std_logic_vector(7 downto 0); 
+			--VGA
+			VGA_RED, VGA_GREEN, VGA_BLUE 				: out std_logic_vector(7 downto 0);
 			HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK	: out std_logic
 			);
 	end component vga_top_level;
@@ -118,7 +119,7 @@ architecture structural of top_level is
 	-- controller
 	component ps2 is
 		port( 	keyboard_clk, keyboard_data, clock_50MHz ,
-				reset : in std_logic;--, 
+				reset : in std_logic;--,
 				scan_code : out std_logic_vector( 7 downto 0 );
 				scan_readyo : out std_logic;
 				-- hist3 : out std_logic_vector(7 downto 0);
@@ -127,7 +128,7 @@ architecture structural of top_level is
 				hist0 : out std_logic_vector(7 downto 0)
 			);
 	end component ps2;
-	
+
 	component keyboard_mapper is
 		generic(
 			SLOW_KEY: std_logic_vector(7 downto 0) := X"1E";
@@ -167,11 +168,11 @@ architecture structural of top_level is
 	component VGA_SYNC is
 		port(
 				clock_50Mhz						: in std_logic;
-				horiz_sync_out, vert_sync_out,  
-				video_on, pixel_clock, eof		: out std_logic;												
+				horiz_sync_out, vert_sync_out,
+				video_on, pixel_clock, eof		: out std_logic;
 				pixel_row, pixel_column			: out std_logic_vector(9 downto 0)
 			);
-	end component VGA_SYNC;	
+	end component VGA_SYNC;
 
 	-- system
 	component clk30 is
@@ -194,9 +195,9 @@ architecture structural of top_level is
 	signal x_pos_tank1, y_pos_tank1, x_pos_tank2, y_pos_tank2 			: std_logic_vector(9 downto 0);
 	signal p1_fire, p2_fire 											: std_logic;
 	signal is_collision_bullet1_tank2, is_collision_bullet2_tank1 		: std_logic;
-    signal p1_scan_code, p1_scan_code_prev								: std_logic_vector(7 downto 0); 
+    signal p1_scan_code, p1_scan_code_prev								: std_logic_vector(7 downto 0);
 	signal scan_readyo													: std_logic;
-	signal scan_code, hist0 											: std_logic_vector(7 downto 0); 
+	signal scan_code, hist0 											: std_logic_vector(7 downto 0);
 	-- signal hist1, hist2, hist3 : std_logic_vector(7 downto 0);
 
 	--Signals for VGA sync
@@ -213,15 +214,15 @@ begin
 	-- de2lcd has active low reset, everything else is using active high
 	lcd_reset <= not reset;
 
-	score_unit: score 
+	score_unit: score
 		port map(
-			p1_hit => is_collision_bullet2_tank1, 
-			p2_hit => is_collision_bullet1_tank2, 
-			reset => reset, 
+			p1_hit => is_collision_bullet2_tank1,
+			p2_hit => is_collision_bullet1_tank2,
+			reset => reset,
 			game_tick => clock_30hz,
-			p1_score => p1_score, 
+			p1_score => p1_score,
 			p2_score => p2_score,
-			p1_win => p1_win, 
+			p1_win => p1_win,
 			p2_win => p2_win
 		);
 
@@ -239,7 +240,8 @@ begin
             game_tick => clock_30hz,
             lost_game => p2_win,
             x_pos_out => x_pos_tank1,
-            y_pos_out => y_pos_tank1
+            y_pos_out => y_pos_tank1,
+			clk => clk_50Mhz
         );
 
 	tank2: tank
@@ -256,7 +258,8 @@ begin
             game_tick => clock_30hz,
             lost_game => p1_win,
             x_pos_out => x_pos_tank2,
-            y_pos_out => y_pos_tank2
+            y_pos_out => y_pos_tank2,
+			clk => clk_50Mhz
         );
 
     bullet1: bullet
@@ -335,34 +338,34 @@ begin
 	-- VIEW
 	char_buffer_unit: char_buffer
 		port map(
-			p1_win => p1_win, 
+			p1_win => p1_win,
 			p2_win => p2_win,
-			reset => reset, 
+			reset => reset,
 			game_tick => clock_30hz,
 			char_buffer_80_chars => char_buffer_80_chars
 		);
-					
+
 	leddcd_p1: leddcd
 		port map(
 			data_in => data_in_p1,
 			segments_out => segments_out_p1
 		   );
-					
+
 	leddcd_p2: leddcd
 		port map(
 			data_in => data_in_p2,
 			segments_out => segments_out_p2
 		   );
 
-	de2lcd_unit: de2lcd 
+	de2lcd_unit: de2lcd
 		port map(
-			reset => lcd_reset, 
+			reset => lcd_reset,
 			clk_50Mhz => clk_50Mhz,
 			CHAR_BUFFER => char_buffer_80_chars,
 			LCD_RS => LCD_RS,
-			LCD_E => LCD_E, 
-			LCD_ON => LCD_ON, 
-			RESET_LED => RESET_LED, 
+			LCD_E => LCD_E,
+			LCD_ON => LCD_ON,
+			RESET_LED => RESET_LED,
 			SEC_LED => SEC_LED,
 			LCD_RW => LCD_RW,
 			DATA_BUS => DATA_BUS
@@ -371,29 +374,29 @@ begin
 	clk30_unit: clk30
 		port map(
 			clock_50Mhz => clk_50Mhz,
-			clock_30hz => clock_30hz 
+			clock_30hz => clock_30hz
 		);
 
 	-- : vga_toplevel
 	-- 	port map(
 	-- 		CLOCK_50 => clk_50Mhz,
 	-- 		RESET_N	=> RESET_N,
-	-- 		VGA_RED => VGA_RED, 
-	-- 		VGA_GREEN => VGA_GREEN, 
-	-- 		VGA_BLUE => VGA_BLUE, 
-	-- 		HORIZ_SYNC => HORIZ_SYNC, 
-	-- 		VERT_Svga_top_level_unitYNC => VERT_SYNC, 
-	-- 		VGA_BLANK => VGA_BLANK, 
+	-- 		VGA_RED => VGA_RED,
+	-- 		VGA_GREEN => VGA_GREEN,
+	-- 		VGA_BLUE => VGA_BLUE,
+	-- 		HORIZ_SYNC => HORIZ_SYNC,
+	-- 		VERT_Svga_top_level_unitYNC => VERT_SYNC,
+	-- 		VGA_BLANK => VGA_BLANK,
 	-- 		VGA_CLK => VGA_CLK
 	-- );
 
 
 	-- CONTROLLER
-	
+
 	ps2_unit: ps2
-		port map( 	
-			keyboard_clk => keyboard_clk, 
-			keyboard_data => keyboard_data, 
+		port map(
+			keyboard_clk => keyboard_clk,
+			keyboard_data => keyboard_data,
 			clock_50MHz => clk_50Mhz,
 			reset => reset,
 			scan_code => scan_code,
@@ -403,7 +406,7 @@ begin
 			-- hist1 => hist1,
 			hist0 => hist0
 		);
-	
+
     kb_p1: keyboard_mapper
 		generic map(
 			SLOW_KEY => X"1C", -- a
@@ -413,10 +416,10 @@ begin
 			BREAK_CODE => X"F0"
 		)
 		port map(
-			reset => reset, 
-			scan_ready => scan_readyo, 
-			scan_code => scan_code, 
-			scan_code_prev => hist0, 
+			reset => reset,
+			scan_ready => scan_readyo,
+			scan_code => scan_code,
+			scan_code_prev => hist0,
 			speed => p1_speed,
 			fire => p1_fire
 		);
@@ -429,15 +432,15 @@ begin
 			BREAK_CODE => X"F0"
 		)
 		port map(
-			reset => reset, 
-			scan_ready => scan_readyo, 
-			scan_code => scan_code, 
-			scan_code_prev => hist0, 
+			reset => reset,
+			scan_ready => scan_readyo,
+			scan_code => scan_code,
+			scan_code_prev => hist0,
 			speed => p2_speed,
 			fire => p2_fire
 		);
 	-- VGA stuff
-	videoGen : pixelGenerator 
+	videoGen : pixelGenerator
 		generic map (
 			SCREEN_WIDTH=> SCREEN_WIDTH,
 			SCREEN_HEIGHT => SCREEN_HEIGHT,
@@ -453,21 +456,21 @@ begin
 			video_on => video_on_int,
 			eof => eof,
 			pixel_row => pixel_row_int,
-			pixel_column => pixel_column_int,			    
+			pixel_column => pixel_column_int,
 			red_out => VGA_RED,
 			green_out => VGA_GREEN,
-			blue_out => VGA_BLUE,		
-			-- test_address => test_address,		
+			blue_out => VGA_BLUE,
+			-- test_address => test_address,
 			tank1_x => x_pos_tank1,
 			tank1_y => y_pos_tank1,
 			tank2_x => x_pos_tank2,
-			tank2_y	=> y_pos_tank2,		
+			tank2_y	=> y_pos_tank2,
 			bullet1_x => x_pos_bullet1,
 			bullet1_y => y_pos_bullet1,
 			bullet2_x => x_pos_bullet2,
 			bullet2_y => y_pos_bullet2
 		);
-	
+
 	video_sync : VGA_SYNC
 		port map(
 			clock_50Mhz => clk_50Mhz,
@@ -487,10 +490,10 @@ end architecture ;
 -- MODEL modules
 
 -- tank (two instances)
--- inputs: 
-	-- speed (unsigned, comes from keyboard): in std_logic_vector (1 downto 0), 
+-- inputs:
+	-- speed (unsigned, comes from keyboard): in std_logic_vector (1 downto 0),
 	-- reset, game_tick: in std_logic
--- generics: y_pos: std_logic_vector(9 downto 0), 
+-- generics: y_pos: std_logic_vector(9 downto 0),
 	-- color: std_logic_vector(2 downto 0)
 	-- tank_width, tank_height: integer
 -- outputs: x_pos, y_pos: out std_logic_vector(9 downto 0)
@@ -499,10 +502,10 @@ end architecture ;
 
 
 -- bullet (two instances)
--- inputs: 
+-- inputs:
 	-- intial_x_pos, intial_y_pos: in std_logic_vector(9 downto 0)
 	-- reset, fire, game_tick, is_collision: in std_logic
--- generics: color: std_logic_vector(2 downto 0), 
+-- generics: color: std_logic_vector(2 downto 0),
 			-- direction: std_logic;
 			-- bullet_width, bullet_height: integer
 -- outputs: x_pos, y_pos: out std_logic_vector(9 downto 0)
@@ -511,7 +514,7 @@ end architecture ;
 
 -- bullet -> is vibing
 -- reset (fuckoff screen)
-	-- 
+	--
 -- when fired
 	-- model tells bullet to go to an xy (model knows that xy is the tank position)
 -- when collision
@@ -524,10 +527,10 @@ end architecture ;
 -- inputs:
 	-- tank_x, tank_y, bullet_x, bullet_y: in std_logic_vector(9 downto 0)
 	-- reset, game_tick: in std_logic
--- outputs: 
+-- outputs:
 	-- is_collision: out std_logic
--- notes: 	
-	-- only checks between one tank and one bullet	
+-- notes:
+	-- only checks between one tank and one bullet
 
 
 -- score
@@ -550,12 +553,12 @@ end architecture ;
 -- companion vga_sync module (we don't need to write this)
 -- companion colorROM module (can add more colors if needby but do not necessarily need to)
 
--- LCD module 
+-- LCD module
 -- buffer_creation
 -- inputs p1_win, p2_win				: in std_logic;
 -- outputs : char_buffer_80_chars		: out std_logic_vector((80 * 8) - 1 downto 0);
 
--- LED module 
+-- LED module
 -- inputs
 	-- data_in : in std_logic_vector(3 downto 0);
 -- outputs
