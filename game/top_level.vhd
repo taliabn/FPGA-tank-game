@@ -7,6 +7,7 @@ use WORK.bullet_tank_const.all;
 
 
 -- ghdl -a --workdir=work -g -fexplicit -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd
+-- ghdl -a --workdir=work -g -fexplicit -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd
 
 entity top_level is
   port (
@@ -18,7 +19,8 @@ entity top_level is
 	DATA_BUS				: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0);
 	segments_out_p1, segments_out_p2 : out std_logic_vector(6 downto 0);
 	VGA_RED, VGA_GREEN, VGA_BLUE 					: out std_logic_vector(7 downto 0);
-	HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK		: out std_logic
+	HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK		: out std_logic;
+	game_pulse_o, p1_fire_o : out std_logic
   );
 end top_level ;
 
@@ -27,7 +29,7 @@ architecture structural of top_level is
 	-- MODEL
 	component score is
 		port (
-			p1_hit, p2_hit, reset, game_tick: in std_logic;
+			p1_hit, p2_hit, reset, game_pulse: in std_logic;
 			p1_score, p2_score : out std_logic_vector(1 downto 0);
 			p1_win, p2_win : out std_logic
 		);
@@ -43,7 +45,7 @@ architecture structural of top_level is
 		);
 		port(
 			speed: in std_logic_vector(1 downto 0);
-			reset, game_tick: in std_logic;
+			reset, game_pulse: in std_logic;
 			lost_game: in std_logic;
 			clk: in std_logic;
 			x_pos_out, y_pos_out: out std_logic_vector(9 downto 0)
@@ -60,7 +62,7 @@ architecture structural of top_level is
 		);
 		port (
 			initial_x_pos, initial_y_pos : in std_logic_vector(9 downto 0);
-			reset, fire, game_tick, is_collision : in std_logic;
+			reset, fire, game_pulse, is_collision, clk: in std_logic;
 			game_over : in std_logic;
 			x_pos_out, y_pos_out : out std_logic_vector(9 downto 0)
 		);
@@ -77,7 +79,7 @@ architecture structural of top_level is
         );
         port(
             obja_x, obja_y, objb_x, objb_y: in std_logic_vector(9 downto 0);
-            reset, game_tick: in std_logic;
+            reset, game_pulse: in std_logic;
             is_collision: out std_logic
         );
     end component collision_check;
@@ -85,7 +87,7 @@ architecture structural of top_level is
 	-- VIEW
 	component char_buffer is
 		port (
-			p1_win, p2_win, reset, game_tick : in std_logic;
+			p1_win, p2_win, reset, game_pulse : in std_logic;
 			char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
 		);
 	end component char_buffer ;
@@ -138,7 +140,7 @@ architecture structural of top_level is
 			BREAK_CODE: std_logic_vector(7 downto 0) := X"F0"
 		);
 		port (
-			reset: in std_logic;
+			reset, clk: in std_logic;
 			scan_code, scan_code_prev: in std_logic_vector(7 downto 0);
 			scan_ready: in std_logic;
 			speed: out std_logic_vector(1 downto 0);
@@ -178,14 +180,14 @@ architecture structural of top_level is
 	component clk30 is
     	PORT (
 			clock_50Mhz : IN STD_LOGIC;
-          	clock_30hz : OUT STD_LOGIC
+          	pulse : OUT STD_LOGIC
 		);
 	end component clk30;
 
 
 
 	-- signals
-	signal p1_win, p2_win, clock_30hz, lcd_reset						: std_logic;
+	signal p1_win, p2_win, game_pulse, inv_reset						: std_logic;
 	signal p1_score, p2_score 											: std_logic_vector(1 downto 0);
 	signal char_buffer_80_chars 										: std_logic_vector(80 - 1 downto 0);
 	signal data_in_p1 													: std_logic_vector(3 downto 0);
@@ -212,14 +214,16 @@ begin
 	data_in_p1 <= "00" & p1_score;
 	data_in_p2 <= "00" & p2_score;
 	-- de2lcd has active low reset, everything else is using active high
-	lcd_reset <= not reset;
-
+	inv_reset <= not reset;
+	
+	game_pulse_o <= game_pulse;
+	p1_fire_o <= p1_fire;
 	score_unit: score
 		port map(
 			p1_hit => is_collision_bullet2_tank1,
 			p2_hit => is_collision_bullet1_tank2,
-			reset => reset,
-			game_tick => clock_30hz,
+			reset => inv_reset,
+			game_pulse => game_pulse,
 			p1_score => p1_score,
 			p2_score => p2_score,
 			p1_win => p1_win,
@@ -236,8 +240,8 @@ begin
         )
         port map(
             speed => p1_speed,
-            reset => reset,
-            game_tick => clock_30hz,
+            reset => inv_reset,
+            game_pulse => game_pulse,
             lost_game => p2_win,
             x_pos_out => x_pos_tank1,
             y_pos_out => y_pos_tank1,
@@ -254,8 +258,8 @@ begin
 		)
 		port map(
             speed => p2_speed,
-            reset => reset,
-            game_tick => clock_30hz,
+            reset => inv_reset,
+            game_pulse => game_pulse,
             lost_game => p1_win,
             x_pos_out => x_pos_tank2,
             y_pos_out => y_pos_tank2,
@@ -270,15 +274,16 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => x_pos_tank1,
+            initial_x_pos => std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
             initial_y_pos => y_pos_tank1,
-            reset => reset,
+            reset => inv_reset,
             fire => p1_fire,
-            game_tick => clock_30hz,
+            game_pulse => game_pulse,
             is_collision => is_collision_bullet1_tank2,
             game_over => p2_win,
             x_pos_out => x_pos_bullet1,
-            y_pos_out => y_pos_bullet1
+            y_pos_out => y_pos_bullet1,
+			clk => clk_50Mhz
         );
 
 	bullet2: bullet
@@ -289,15 +294,16 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => x_pos_tank2,
+            initial_x_pos => std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
             initial_y_pos => y_pos_tank2,
-            reset => reset,
+            reset => inv_reset,
             fire => p2_fire,
-            game_tick => clock_30hz,
+            game_pulse => game_pulse,
             is_collision => is_collision_bullet2_tank1,
             game_over => p1_win,
             x_pos_out => x_pos_bullet2,
-            y_pos_out => y_pos_bullet2
+            y_pos_out => y_pos_bullet2,
+			clk => clk_50Mhz
         );
 
 	collision_check_tank1_bullet2: collision_check
@@ -312,8 +318,8 @@ begin
 			obja_y => y_pos_tank1,
 			objb_x => x_pos_bullet2,
 			objb_y => y_pos_bullet2,
-			reset => reset,
-			game_tick => clock_30hz,
+			reset => inv_reset,
+			game_pulse => game_pulse,
 			is_collision => is_collision_bullet2_tank1
 		);
 
@@ -329,8 +335,8 @@ begin
 			obja_y => y_pos_tank2,
 			objb_x => x_pos_bullet1,
 			objb_y => y_pos_bullet1,
-			reset => reset,
-			game_tick => clock_30hz,
+			reset => inv_reset,
+			game_pulse => game_pulse,
 			is_collision => is_collision_bullet1_tank2
 		);
 
@@ -340,8 +346,8 @@ begin
 		port map(
 			p1_win => p1_win,
 			p2_win => p2_win,
-			reset => reset,
-			game_tick => clock_30hz,
+			reset => inv_reset,
+			game_pulse => game_pulse,
 			char_buffer_80_chars => char_buffer_80_chars
 		);
 
@@ -359,7 +365,7 @@ begin
 
 	de2lcd_unit: de2lcd
 		port map(
-			reset => lcd_reset,
+			reset => reset,
 			clk_50Mhz => clk_50Mhz,
 			CHAR_BUFFER => char_buffer_80_chars,
 			LCD_RS => LCD_RS,
@@ -374,7 +380,7 @@ begin
 	clk30_unit: clk30
 		port map(
 			clock_50Mhz => clk_50Mhz,
-			clock_30hz => clock_30hz
+			pulse => game_pulse
 		);
 
 	-- : vga_toplevel
@@ -416,7 +422,8 @@ begin
 			BREAK_CODE => X"F0"
 		)
 		port map(
-			reset => reset,
+			reset => inv_reset,
+			clk => clk_50Mhz,
 			scan_ready => scan_readyo,
 			scan_code => scan_code,
 			scan_code_prev => hist0,
@@ -432,7 +439,8 @@ begin
 			BREAK_CODE => X"F0"
 		)
 		port map(
-			reset => reset,
+			reset => inv_reset,
+			clk => clk_50Mhz,
 			scan_ready => scan_readyo,
 			scan_code => scan_code,
 			scan_code_prev => hist0,
@@ -492,7 +500,7 @@ end architecture ;
 -- tank (two instances)
 -- inputs:
 	-- speed (unsigned, comes from keyboard): in std_logic_vector (1 downto 0),
-	-- reset, game_tick: in std_logic
+	-- reset, game_pulse: in std_logic
 -- generics: y_pos: std_logic_vector(9 downto 0),
 	-- color: std_logic_vector(2 downto 0)
 	-- tank_width, tank_height: integer
@@ -504,7 +512,7 @@ end architecture ;
 -- bullet (two instances)
 -- inputs:
 	-- intial_x_pos, intial_y_pos: in std_logic_vector(9 downto 0)
-	-- reset, fire, game_tick, is_collision: in std_logic
+	-- reset, fire, game_pulse, is_collision: in std_logic
 -- generics: color: std_logic_vector(2 downto 0),
 			-- direction: std_logic;
 			-- bullet_width, bullet_height: integer
@@ -526,7 +534,7 @@ end architecture ;
 -- collision detection (two instances)
 -- inputs:
 	-- tank_x, tank_y, bullet_x, bullet_y: in std_logic_vector(9 downto 0)
-	-- reset, game_tick: in std_logic
+	-- reset, game_pulse: in std_logic
 -- outputs:
 	-- is_collision: out std_logic
 -- notes:
@@ -535,7 +543,7 @@ end architecture ;
 
 -- score
 -- inputs:
-	-- pi_hit, p2_hit, reset, game_tick: in std_logic
+	-- pi_hit, p2_hit, reset, game_pulse: in std_logic
 -- outputs:
 	-- p1_score, p2_score : out std_logic_vector(1 downto 0);
 	-- p1_win, p2_win : out std_logic;
@@ -594,7 +602,7 @@ end architecture ;
 
 -- Clock counter
 -- input: clk
--- output: game_tick
+-- output: game_pulse
 
 
 -- questions

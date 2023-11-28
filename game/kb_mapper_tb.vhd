@@ -28,14 +28,14 @@ architecture behavioral of kb_mapper_tb is
 	end component keyboard_mapper;
 
     signal scan_code, scan_code_prev: std_logic_vector(7 downto 0); 
-	signal reset, game_tick, scan_ready: std_logic := '0';
+	signal reset, game_pulse, scan_ready: std_logic := '0';
 	signal speed : std_logic_vector(1 downto 0) := (others => '0');
 	signal fire : std_logic := '0';
 
     signal finished : std_logic := '0';
 
-	-- Set the game_tick frequency to 30 Hz
-	constant game_tick_period : time := 33 ms;
+	-- Set the game_pulse frequency to 30 Hz
+	constant game_pulse_period : time := 33 ms;
 	-- Set the key pressing frequency to 60 char/sec
 	constant key_press_period : time := 25 ms;
 	constant SLOW_KEY: std_logic_vector(7 downto 0) := X"1E";
@@ -58,12 +58,12 @@ begin
 			fire => fire
 		);
 
-    game_tick_process: process  is
+    game_pulse_process: process  is
     begin
-        game_tick <= '0';
-        wait for game_tick_period / 2;
-        game_tick <= '1';
-        wait for game_tick_period / 2;
+        game_pulse <= '0';
+        wait for game_pulse_period / 2;
+        game_pulse <= '1';
+        wait for game_pulse_period / 2;
 
         if finished = '1' then
             wait;

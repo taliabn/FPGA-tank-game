@@ -73,9 +73,10 @@ set_location_assignment PIN_E11 -to VGA_RED[1]
 set_location_assignment PIN_E12 -to VGA_RED[0]  
 set_location_assignment PIN_G13 -to HORIZ_SYNC
 set_location_assignment PIN_R24 -to RESET_N
+set_location_assignment PIN_E21 -to game_pulse_o
+set_location_assignment PIN_G19 -to p1_fire_o
 # from ps2.qsf
 set_location_assignment PIN_G6 -to keyboard_clk
 set_location_assignment PIN_H5 -to keyboard_data
-set_location_assignment PIN_G26 -to read
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -4,7 +4,7 @@ use IEEE.std_logic_1164.all;
 package bullet_tank_const is
     constant BULLET_WIDTH : integer := 20;
     constant BULLET_HEIGHT : integer := 20;
-    constant BULLET_SPEED : integer := 5;
+    constant BULLET_SPEED : integer := 15;
 
     constant TANK_WIDTH : integer := 100;
     constant TANK_HEIGHT : integer := 50;

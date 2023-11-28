@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 -- tank (two instances)
 -- inputs:
 	-- speed (unsigned, comes from keyboard): in std_logic_vector (1 downto 0),
-	-- reset, game_tick: in std_logic
+	-- reset, game_pulse: in std_logic
 -- generics: y_pos: std_logic_vector(9 downto 0),
 	-- color: std_logic_vector(2 downto 0)
 -- outputs: x_pos_out, y_pos: out std_logic_vector(9 downto 0)
@@ -29,7 +29,7 @@ entity tank is
     );
     port(
         speed: in std_logic_vector(1 downto 0);
-        reset, game_tick: in std_logic;
+        reset, game_pulse: in std_logic;
         lost_game: in std_logic;
         clk: in std_logic;
         x_pos_out, y_pos_out: out std_logic_vector(9 downto 0)
@@ -60,7 +60,7 @@ begin
     end process;
 
     -- Combinatorial process
-    process(state, speed, x_pos_int, lost_game, game_tick)
+    process(state, speed, x_pos_int, lost_game, game_pulse)
     variable speed_int : unsigned(9 downto 0);
     begin
         -- Convert speed to a 10 bit unsigned, and multiply by 4 (speeds = 0, 4, 8, 12)
@@ -70,20 +70,20 @@ begin
         next_state <= state;
         case state is
             when idle =>
-                if game_tick = '1' then
+                if game_pulse = '1' then
                     if (lost_game = '0') then
                         next_state <= move_right;
                         next_x_pos <= (others => '0');
                     else
                         next_state <= idle;
-                        next_x_pos <= shift_left(max_x, 1);
+                        next_x_pos <= to_unsigned(1000, 10);
                     end if;
                 end if;
             when move_left =>
-                if game_tick = '1' then
+                if game_pulse = '1' then
                     if (lost_game = '1') then
                         next_state <= idle;
-                        next_x_pos <= shift_left(max_x, 1);
+                        next_x_pos <= to_unsigned(1000, 10);
                     elsif (x_pos_int - speed_int > 0) and (x_pos_int - speed_int < max_x) then
                         next_state <= move_left;
                         next_x_pos <= x_pos_int - speed_int;
@@ -93,10 +93,10 @@ begin
                     end if;
                 end if;
             when move_right =>
-                if game_tick = '1' then
+                if game_pulse = '1' then
                     if (lost_game = '1') then
                         next_state <= idle;
-                        next_x_pos <= shift_left(max_x, 1);
+                        next_x_pos <= to_unsigned(1000, 10);
                     elsif x_pos_int + speed_int < (max_x - tank_width) then
                         next_state <= move_right;
                         next_x_pos <= x_pos_int + speed_int;
@@ -111,7 +111,7 @@ begin
                 end if;
             when others =>
                 next_state <= idle;
-                next_x_pos <= shift_left(max_x, 1);
+                next_x_pos <= to_unsigned(1000, 10);
         end case;
     end process;
 

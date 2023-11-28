@@ -30,8 +30,8 @@ architecture behavioral of pixelGenerator is
 	constant color_bullet1	: std_logic_vector(2 downto 0) := "011"; -- yellow
 	constant color_magenta 	: std_logic_vector(2 downto 0) := "100";
 	constant color_cyan 	: std_logic_vector(2 downto 0) := "101";
-	constant color_black 	: std_logic_vector(2 downto 0) := "110";
-	constant color_bg		: std_logic_vector(2 downto 0) := "111"; -- white
+	constant color_bg 	: std_logic_vector(2 downto 0) := "110"; -- black
+	constant color_white		: std_logic_vector(2 downto 0) := "111"; -- white
 	
 	component colorROM is
 		port(
@@ -50,7 +50,10 @@ architecture behavioral of pixelGenerator is
 begin
 
 --------------------------------------------------------------------------------------------
-	
+	-- color <= others => '1';
+	-- red_out <= "11111111";
+	-- green_out <= "11111111";
+	-- blue_out <= "11111111";
 	red_out <= color(23 downto 16);
 	green_out <= color(15 downto 8);
 	blue_out <= color(7 downto 0);

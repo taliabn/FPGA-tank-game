@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 -- bullet (two instances)
 -- inputs:
 	-- intial_x_pos, intial_y_pos: in std_logic_vector(9 downto 0)
-	-- reset, fire, game_tick, is_collision: in std_logic
+	-- reset, fire, game_pulse, is_collision: in std_logic
 -- generics: color: std_logic_vector(2 downto 0),
 			-- direction: std_logic;
 -- outputs: x_pos, y_pos: out std_logic_vector(9 downto 0)
@@ -52,8 +52,8 @@ begin
     begin
         if reset = '1' then
             state <= idle;
-            x_pos_int <= shift_left(max_y_val, 1);
-            y_pos_int <= shift_left(max_y_val, 1);
+            x_pos_int <= to_unsigned(1000, 10);
+            y_pos_int <= to_unsigned(1000, 10);
             -- report "bullet reset";
         elsif rising_edge(clk) then
             state <= next_state;
@@ -69,32 +69,19 @@ begin
         next_y_pos <= y_pos_int;
 
         case state is
-            -- when wait_on_fire =>
-            --     if ( fire = '1' ) then
-            --         next_state <= idle;
-            --     end if;
-
-            -- when idle =>
-            --     if ( start = '1' ) then
-            --         next_state <= ;
-            --     end if;
-            -- when wait_on_fire =>
-            --     if ( fire = '1' ) then
-            --         next_state <= idle;
-            --     end if;
-            -- Idle is essentiall wait for fire OR game_over
             when idle =>
                 if game_over = '1' then
                     next_state <= win_state;
-                    next_y_pos <= shift_left(max_y_val, 2);
+                    next_y_pos <= to_unsigned(1000, 10);
                 elsif fire = '1' then
                     next_state <= normal;
                     next_x_pos <= unsigned(initial_x_pos);
                     next_y_pos <= unsigned(initial_y_pos);
                 else
                     next_state <= idle;
-                    next_x_pos <= shift_left(max_y_val, 2);
-                    next_y_pos <= shift_left(max_y_val, 2);
+                    -- Throw the bullet off the screen
+                    next_x_pos <= to_unsigned(1000, 10);
+                    next_y_pos <= to_unsigned(1000, 10);
                 end if;
             -- normal = bullet has been fired and is moving
             when normal =>
@@ -108,8 +95,8 @@ begin
                         -- Unsigned comparisom, so <0 is just really big
                         if (y_pos_int > max_y_val) then
                             next_state <= idle;
-                            next_x_pos <= shift_left(max_y_val, 2);
-                            next_y_pos <= shift_left(max_y_val, 2);
+                            next_x_pos <= to_unsigned(1000, 10);
+                            next_y_pos <= to_unsigned(1000, 10);
                         -- Direction = 1 means bullet is moving in the -y direction
                         -- Direction = 0 means bullet is moving in the +y direction
                         elsif direction = '1' then
@@ -122,13 +109,13 @@ begin
             when win_state =>
 				if game_over = '1' then
 					next_state <= win_state;
-					next_x_pos <= shift_left(y_pos_int, 2);
-					next_y_pos <= shift_left(y_pos_int, 2);
 				end if;
+                    next_x_pos <= to_unsigned(1000, 10);
+					next_y_pos <= to_unsigned(1000, 10);
             when others =>
 				next_state <= idle;
-				next_x_pos <= shift_left(max_y_val, 2);
-				next_y_pos <= shift_left(max_y_val, 2);
+				next_x_pos <= to_unsigned(1000, 10);
+				next_y_pos <= to_unsigned(1000, 10);
         end case;
         -- display x_pos_int and y_pos_int;
         -- report "bullet x_pos_int: " & integer'image(to_integer(x_pos_int));
