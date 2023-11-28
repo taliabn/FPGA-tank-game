@@ -28,6 +28,9 @@ architecture structural of top_level is
 
 	-- MODEL
 	component score is
+		generic(
+			win_score : unsigned(2 downto 1)
+		);
 		port (
 			p1_hit, p2_hit, reset, game_pulse: in std_logic;
 			p1_score, p2_score : out std_logic_vector(1 downto 0);
@@ -149,14 +152,6 @@ architecture structural of top_level is
 	end component keyboard_mapper;
 
 	component pixelGenerator is
-		generic(
-			SCREEN_WIDTH	: natural := 640;
-			SCREEN_HEIGHT	: natural := 480;
-			TANK_HEIGHT		: natural := 40;
-			TANK_WIDTH		: natural := 60;
-			BULLET_HEIGHT	: natural := 25;
-			BULLET_WIDTH	: natural := 10
-		);
 		port(
 			clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 			pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
@@ -194,6 +189,7 @@ architecture structural of top_level is
 	signal data_in_p2 													: std_logic_vector(3 downto 0);
 	signal p1_speed, p2_speed											: std_logic_vector(1 downto 0);
 	signal x_pos_bullet1, y_pos_bullet1, x_pos_bullet2, y_pos_bullet2	: std_logic_vector(9 downto 0);
+	signal initial_x_pos_bullet1, initial_x_pos_bullet2					: std_logic_vector(9 downto 0);
 	signal x_pos_tank1, y_pos_tank1, x_pos_tank2, y_pos_tank2 			: std_logic_vector(9 downto 0);
 	signal p1_fire, p2_fire 											: std_logic;
 	signal is_collision_bullet1_tank2, is_collision_bullet2_tank1 		: std_logic;
@@ -219,6 +215,10 @@ begin
 	game_pulse_o <= game_pulse;
 	p1_fire_o <= p1_fire;
 	score_unit: score
+		generic map(
+			-- TO MAKE TESTING EASIER, TEMPORARILY SET WIN CONDITION TO 1 POINT
+			win_score => "01" 
+		)
 		port map(
 			p1_hit => is_collision_bullet2_tank1,
 			p2_hit => is_collision_bullet1_tank2,
@@ -266,6 +266,7 @@ begin
 			clk => clk_50Mhz
         );
 
+	initial_x_pos_bullet1 <= std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
     bullet1: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -274,7 +275,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
+            initial_x_pos => initial_x_pos_bullet1,
             initial_y_pos => y_pos_tank1,
             reset => inv_reset,
             fire => p1_fire,
@@ -286,6 +287,7 @@ begin
 			clk => clk_50Mhz
         );
 
+	initial_x_pos_bullet2 <= std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
 	bullet2: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -294,7 +296,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
+            initial_x_pos => initial_x_pos_bullet2,
             initial_y_pos => y_pos_tank2,
             reset => inv_reset,
             fire => p2_fire,
@@ -449,14 +451,6 @@ begin
 		);
 	-- VGA stuff
 	videoGen : pixelGenerator
-		generic map (
-			SCREEN_WIDTH=> SCREEN_WIDTH,
-			SCREEN_HEIGHT => SCREEN_HEIGHT,
-			TANK_HEIGHT	=> TANK_HEIGHT,
-			TANK_WIDTH => TANK_WIDTH,
-			BULLET_HEIGHT => BULLET_HEIGHT,
-			BULLET_WIDTH => BULLET_WIDTH
-		)
 		port map(
 			clk => clk_50Mhz,
 			ROM_clk => VGA_clk_int,

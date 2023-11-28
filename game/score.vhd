@@ -3,6 +3,9 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity score is
+	generic(
+		win_score : unsigned(2 downto 1) := "11"
+	);
 	port (
 		p1_hit, p2_hit, reset, game_pulse: in std_logic;
 		p1_score, p2_score : out std_logic_vector(1 downto 0);
@@ -13,7 +16,6 @@ end entity score;
 architecture behavior of score is
 	signal p1_score_comb, p2_score_comb, p1_score_o, p2_score_o : std_logic_vector(1 downto 0) := (others => '0'); 
 	signal p1_win_comb, p2_win_comb, p1_win_o, p2_win_o : std_logic := '0'; 
-	constant two_const: unsigned(1 downto 0) := "10";
 
 	type t_state is (gameplay, win);
 	signal state, next_state: t_state;
@@ -64,13 +66,13 @@ begin
 				next_state <= gameplay;
 
 				-- update winners and conditionally move to win state (allowing for ties)
-				if (tmp_p1 > two_const) then
+				if (tmp_p1 >= win_score) then
 					p1_win_comb <= '1';
 					next_state <= win;
 				else
 					p1_win_comb <= '0';
 				end if;
-				if (tmp_p2 > two_const) then
+				if (tmp_p2 >= win_score) then
 					p2_win_comb <= '1';
 					next_state <= win;
 				else
