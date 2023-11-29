@@ -18,10 +18,14 @@
     - [Scoring](#scoring)
   - [Board Implementation and Peripherals](#board-implementation-and-peripherals)
   - [Simulation Figures and Testing Methodology](#simulation-figures-and-testing-methodology)
+          - [Zoomed in view of clock counter simulation](#zoomed-in-view-of-clock-counter-simulation)
   - [Synthesis Results](#synthesis-results)
     - [Used memory:](#used-memory)
     - [Clocks:](#clocks)
+    - [FMax:](#fmax)
+          - [Slow 1200mV 85C Model Fmax Summary](#slow-1200mv-85c-model-fmax-summary)
     - [Resource utilization:](#resource-utilization)
+          - [Fitter Resource Usage Summary](#fitter-resource-usage-summary)
 
 
 ## Introduction
@@ -32,7 +36,9 @@ The game was designed in a modular fashion, with each component of the game bein
 
 We wanted to create a fully structural top-level module for our design, so each of these modules needed to operate independently of each other, and have outputs that could be directly connected to each other. Before beginning the project, we fully scaffolded out what each module would need to perform, the widths of each `std_logic` or `std_logic_vector` signal, and the inputs and outputs of each module. This allowed us to plan for a fully structural top-level module, and allowed us to easily integrate each module together.
 
-Infrastructure modules were created first and leveraged the provided miniproject code. These modules included
+Additionally, this design strategy allowed us to divide up the work, and work/test each module independently (see below for more details on our testing strategy).
+
+Infrastructure modules were created first and leveraged the provided miniproject code where applicable. These modules included
 
  - VGA Controller
  - PS/2 Keyboard Controller
@@ -45,8 +51,6 @@ We then scaffolded and mapped out the other modules needed. In addition to our t
  - Bullet
  - Scoring
  - Collision Detection
-
-Additionally, this design strategy allowed us to divide up the work, and work/test each module independently (see below for more details on our testing strategy).
 
 **PLL:**
 The base DE2-115 board has a 50 MHz clock, but for the purposes of the assignment we decided to use a 100 MHz clock. This allowed us to have a higher resolution game. To step between these speeds, we created a PLL module using the Quartus software that took in the 50 MHz clock and output a 100 MHz clock. This PLL module is located in our [pll.vhd](game/pll.vhd) file.
@@ -66,6 +70,8 @@ When a player scores a point, the score is displayed on the 7-segment LED displa
 ### Clock Counter
 Since the game clock is 100 MHz, we needed a way to produce a pulse considerably slower to allow for the game to be playable. We targeted a 30 fps game. To do this, we created a clock counter module, located in our [clock_counter.vhd](game/clock_counter.vhd) file. This module takes in the 100 MHz clock and has a 21 bit counter inside. When the counter equals zero (values are unsigned so when the value of $2^{21}-1=2097151$ is passed, the counter resets to zero), the module outputs a pulse. This pulse is used to advance the game logic. This results in an FPS of roughly $\frac{100 *10^{6} Hz}{2^{21}}=47.68$ pulses per second. Each pulse is one clock tick long.
 
+![Clock Counter](images/game_pulse.png)
+
 ### Tank
 The tank module is located in our [tank.vhd](game/tank.vhd) file. The tank takes in a speed from 0-3. It moves in a direction until it reaches a side, in which case it bounces off and moves in the opposite direction. Tank stores its own position, and outputs this position to the top-level module. The tank also takes in a signal to let it know if it has lost the game, and should move off the screen.
 
@@ -81,7 +87,8 @@ The scoring module is located in our [scoring.vhd](game/scoring.vhd) file. @tali
 
 ## Board Implementation and Peripherals
 **RTL Schematic**
-Goes here!
+<!-- Add photo images/rtl-diagram.png -->
+![RTL Schematic](images/rtl-diagram.png)
 
 The game was compiled, elaborated, and programmed onto the DE2-115 board using the Quartus software, upladed via the USB-Blaster. As can be seen from the above screenshot, the final RTL schematic of the top-level module is structural, with each module being connected to each other. The top-level module is located in our [top_level.vhd](game/top_level.vhd) file.
 
@@ -99,16 +106,138 @@ The other input is hardware button LED-G0 on the dev board, which is used to res
 ## Simulation Figures and Testing Methodology
 As mentioned above, we created simple tests, fully testing one or two modules at a time in simulation before integrating them into larger tests. We chose to structure most of our tests using `assert` statements, as this allowed us to easily see if the test passed or failed. We also used `report` statements to print out the values of signals, and `wait` statements to pause the simulation. This allowed us to easily run many testbenches at the same time with a bash script to rapidly find issues. Each testbench operates independently, and has hard-coded inputs and outputs.
 
+To run our plethora of testbenches, we used `GHDL` and `ModelSim`. We found `GHDL` to be a very useful tool when running testbenches from the command line, as its speed and fast compile times were orders of magnitude faster than ModelSim - compiling and running testbenches took 0-5 seconds compared to minutes in `ModelSim`.
+After initially testing with GHDL, used `ModelSim` to view the waveforms of our testbenches to ensure that they were working as expected, comparing with the transcript to be doubly sure. Screenshots of waveforms may be found below.
+
+We were able to confidently test all modules except for the clock counter module, which were were unable to exhaustively test in simulation due to the very high number of clock cycles (100M+) required to test its full functionality. We were able to test the clock counter module in simulation by using a smaller counter, and then testing the full functionality on the FPGA.
+
+**bullet_tank_tb.vhd**
+ * Tests the bullet and tank modules together
+ * Single tank moving back and forward
+   * Dynamic/changing speed
+ * Fires bullet
+ * Bullet moves, moves offscreen when applicable
+ * Bullet can be refired when needed
+
+**char_buffer_tb.vhd**
+  * Tests the char_buffer module
+  * Tests to make sure that the correct buffer is output for a given input
+  * Checks all used combinations of inputs
+
+**collision_check_tb.vhd**
+  * Tests the collision detection module
+  * Tests to make sure that the correct output is given for a given input
+  * Single module test; Simply uses numeric values, does not integrate tank
+
+**fire_collision_tb.vhd**
+ * Uses 2 tanks and 2 bullets, 1 collision detection module
+ * Static tank positions
+ * Fires bullets
+ * Checks to ensure bullets move correctly
+ * Check to ensure that detection of collision is correct
+ * Checks to ensure that bullets move offscreen at the correct time
+
+**integration_tb.vhd**
+ * Tests the full integration of tank, bullet, collision detection, score, LCD, and clock counter
+ * Simulation takes a long time to run, but tests the full functionality of the game minus the VGA output, 7-segment LED display, and moving tanks
+
+**kb_mapper_tb.vhd**
+ * Tests the keyboard input mapping module in simulation
+ * Tests to make sure that the correct output is given for a given input; correct speed is output for a given key press and is held appropriately
+
+**pixelGenerator_tb.vhd**
+  * Tests the pixel generator module in simulation
+  * Tests to make sure that the correct output is given for a given input
+
+**score_tb.vhd**
+  * Tests the score module in simulation
+  * Tests to make sure that the correct output is given for a given input
+
+**clock_counter_small_tb.vhd**
+  * Tests a modified version of the clock counter (max width is 11 bits rather than 21)
+  * Shows proper behavior
+  * Tests single module
+
+![clock_counter_small waveform subset](images/clk_counter.png)
+###### Zoomed in view of clock counter simulation
+
 
 ## Synthesis Results
 **Includes memory, clocks, and resource utilization**
 
 ### Used memory:
+ - 192 / 3,981,312 ( < 1 % )
+ - Total block memory implementation bits:  9,216 / 3,981,312 ( < 1 %
 
 ### Clocks:
 
+| Clock Name                                     | Type      | Period | Frequency | Rise  | Fall   | Duty Cycle | Divide by | Multiply by | Master | Targets            | Slack Setup | Slack Hold |
+|-----------------------------------------------:|-----------|--------|-----------|-------|--------|------------|-----------|-------------|--------|--------------------|-------------|------------|
+| pll_unit\|altpll_component\|auto_generated\|pll1\|clk[0] | Generated | 10.000 | 100.0 MHz | 0.000 | 5.000  | 50.00      | 1         | 2           | SYSCLK | SYSCLK             | 1.598       | 0.402      |
+| SYSCLK                                         | Base      | 20.000 | 50.0 MHz  | 0.000 | 10.000 |            |           |             |        | clk_50Mhz           | 4.032       | 0.405      |
+
 ### FMax:
+###### Slow 1200mV 85C Model Fmax Summary
+| Fmax       | Restricted Fmax | Clock Name                                           |
+|------------|-----------------|------------------------------------------------------|
+| 159.8 MHz  | 159.8 MHz       | pll_unit\|altpll_component\|auto_generated\|pll1\|clk[0] |
+| 219.49 MHz | 219.49 MHz      | SYSCLK                                               |
+
+The maximum frequency available is 159.8 MHz which is 59 MHz higher than the current maximum system frequency of 100 MHz.
+
+The longest datapaths are from keyboard mapper to tank module, and has a data delay of 5.148 with skew of -3.202
+
 
 ### Resource utilization:
+
+###### Fitter Resource Usage Summary
+
+| Resource                                    | Usage                       |
+|-------------------------------------------: |:--------------------------- |
+| Total logic elements                        | 742 / 114,480 ( < 1 % )     |
+|     -- Combinational with no register       | 463                         |
+|     -- Register only                        | 49                          |
+|     -- Combinational with a register        | 230                         |
+|                                             |                             |
+| Logic element usage by number of LUT inputs |                             |
+|     -- 4 input functions                    | 211                         |
+|     -- 3 input functions                    | 207                         |
+|     -- <=2 input functions                  | 275                         |
+|     -- Register only                        | 49                          |
+|                                             |                             |
+| Logic elements by mode                      |                             |
+|     -- normal mode                          | 387                         |
+|     -- arithmetic mode                      | 306                         |
+|                                             |                             |
+| Total registers*                            | 279 / 117,053 ( < 1 % )     |
+|     -- Dedicated logic registers            | 279 / 114,480 ( < 1 % )     |
+|     -- I/O registers                        | 0 / 2,573 ( 0 % )           |
+|                                             |                             |
+| Total LABs:  partially or completely used   | 56 / 7,155 ( < 1 % )        |
+| Virtual pins                                | 0                           |
+| I/O pins                                    | 63 / 529 ( 12 % )           |
+|     -- Clock pins                           | 1 / 7 ( 14 % )              |
+|     -- Dedicated input pins                 | 0 / 9 ( 0 % )               |
+|                                             |                             |
+| M9Ks                                        | 1 / 432 ( < 1 % )           |
+| Total block memory bits                     | 192 / 3,981,312 ( < 1 % )   |
+| Total block memory implementation bits      | 9,216 / 3,981,312 ( < 1 % ) |
+| Embedded Multiplier 9-bit elements          | 0 / 532 ( 0 % )             |
+| PLLs                                        | 1 / 4 ( 25 % )              |
+| Global signals                              | 6                           |
+|     -- Global clocks                        | 6 / 20 ( 30 % )             |
+| JTAGs                                       | 0 / 1 ( 0 % )               |
+| CRC blocks                                  | 0 / 1 ( 0 % )               |
+| ASMI blocks                                 | 0 / 1 ( 0 % )               |
+| Oscillator blocks                           | 0 / 1 ( 0 % )               |
+| Impedance control blocks                    | 0 / 4 ( 0 % )               |
+| Average interconnect usage (total/H/V)      | 0.3% / 0.3% / 0.2%          |
+| Peak interconnect usage (total/H/V)         | 5.9% / 6.2% / 5.5%          |
+| Maximum fan-out                             | 101                         |
+| Highest non-global fan-out                  | 100                         |
+| Total fan-out                               | 2952                        |
+| Average fan-out                             | 2.55                        |
+
+* Register count does not include registers inside RAM blocks or DSP blocks.
 
 

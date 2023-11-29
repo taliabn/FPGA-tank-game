@@ -30,7 +30,7 @@ architecture behavioral of kb_mapper_tb is
 		);
 	end component keyboard_mapper;
 
-    signal scan_code, scan_code_prev: std_logic_vector(7 downto 0); 
+    signal scan_code, scan_code_prev: std_logic_vector(7 downto 0) := (others => '0'); 
 	signal reset, clk, scan_ready: std_logic := '0';
 	signal speed : std_logic_vector(1 downto 0) := (others => '0');
 	signal fire : std_logic := '0';
