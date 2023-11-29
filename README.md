@@ -107,6 +107,8 @@ As mentioned above, we created simple tests, fully testing one or two modules at
 
 ### Clocks:
 
+### FMax:
+
 ### Resource utilization:
 
 

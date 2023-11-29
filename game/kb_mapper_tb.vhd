@@ -101,10 +101,8 @@ begin
 		wait for clk_period;
 		assert speed = SLOW_SPEED report "Test 1A failed from speed" severity error;
 		assert fire = '1' report "Test 1A failed from fire" severity error;
-		-- assert false report "speed: " & integer'image(to_integer(unsigned(speed))) severity note;
-		-- assert false report "fire: "  & std_logic'image(fire);
 		scan_code_prev <= BREAK_CODE; 
-		scan_code <= FIRE_KEY; 
+		scan_code <= FIRE_KEY; -- release fire key
 		scan_ready <= '1';
 		wait for clk_period;
 		assert speed = SLOW_SPEED report "Test 1B failed from speed" severity error;
@@ -118,7 +116,7 @@ begin
 		assert speed = MED_SPEED report "Test 2A failed from speed" severity error;
 		assert fire = '0' report "Test 2A failed from fire" severity error;
 		scan_code_prev <= BREAK_CODE; 
-		scan_code <= MED_KEY; 
+		scan_code <= MED_KEY; -- release med speed key
 		scan_ready <= '1';
 		wait for clk_period;
 		assert speed = MED_SPEED report "Test 2B failed from speed" severity error;
@@ -196,13 +194,9 @@ begin
 		assert speed = FAST_SPEED report "Test 5C failed from speed" severity error;
 		assert fire = '0' report "Test 5C failed from fire" severity error;
 
-
-        -- Display a message when simulation finished
         assert false report "end of test" severity note;
-
-        -- Finish the simulation
         finished <= '1';
-		wait; -- very important line don't delete this one
+		wait;
 	end process test_process;
 
 end architecture behavioral;

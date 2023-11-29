@@ -4,7 +4,7 @@ lets finish this project!
 ## Todo for demo
 - [X] Finish game
 - [X] Timing Analysis
-- [ ] clean up code (make code pretty! see if there's a linter for vhdl)
+- [X] clean up code (make code pretty! see if there's a linter for vhdl)
 - [ ] Finish testbenches
   - [X] fix score tb
   - [X] fix kb_mapper tb

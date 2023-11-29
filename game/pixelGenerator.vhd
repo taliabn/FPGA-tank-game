@@ -48,10 +48,6 @@ architecture behavioral of pixelGenerator is
 begin
 
 --------------------------------------------------------------------------------------------
-	-- color <= others => '1';
-	-- red_out <= "11111111";
-	-- green_out <= "11111111";
-	-- blue_out <= "11111111";
 	red_out <= color(23 downto 16);
 	green_out <= color(15 downto 8);
 	blue_out <= color(7 downto 0);
@@ -59,9 +55,7 @@ begin
 	pixel_row_int <= to_integer(unsigned(pixel_row));
 	pixel_col_int <= to_integer(unsigned(pixel_column));
 	tank1_x_int <= to_integer(unsigned(tank1_x));
-	-- tank1_y_int <= to_integer(unsigned(tank1_y));
 	tank2_x_int <= to_integer(unsigned(tank2_x));
-	-- tank2_y_int <= to_integer(unsigned(tank2_y));
 	bullet1_x_int <= to_integer(unsigned(bullet1_x));
 	bullet1_y_int <= to_integer(unsigned(bullet1_y));
 	bullet2_x_int <= to_integer(unsigned(bullet2_x));
@@ -78,8 +72,8 @@ begin
 	
 	begin
 		
+		-- if pixel is in bounding box of a game object, draw it the appropriate color, otherwise draw it background color
 		if (rising_edge(clk)) then
-			-- if pixel is in bounding box of a game object, draw it the appropriate color, otherwise draw it background color
 
 			-- upper left corner is 0, 0
 			-- if row above tank height and col in tank 1
@@ -121,4 +115,5 @@ begin
 
 --------------------------------------------------------------------------------------------
 	
-end architecture behavioral;		
+end architecture behavioral;	
+	

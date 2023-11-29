@@ -29,7 +29,7 @@
 db
 incremental_db
 */work
-*/output_files
+# */output_files
 */simulation
 
 # Do not ignore
@@ -39,4 +39,7 @@ incremental_db
 !*.qpf
 !*.pdf
 
-
+# Include everything in the output_files directory
+!game/output_files/*.rpt
+!game/output_files/*.summary
+!game/output_files/*.pdf

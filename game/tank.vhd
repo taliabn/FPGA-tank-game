@@ -100,8 +100,6 @@ begin
                     elsif x_pos_int + speed_int < (max_x - tank_width) then
                         next_state <= move_right;
                         next_x_pos <= x_pos_int + speed_int;
-                        -- report "Input speed is " & integer'image(to_integer(unsigned(speed)));
-                        -- report "Moving right by "  & integer'image(to_integer(speed_int));
                     else
                         next_state <= move_left;
                         -- NOTE! Optimization possible here;

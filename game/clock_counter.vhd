@@ -20,7 +20,7 @@ BEGIN
         constant ZEROS : unsigned(counter'range) := (OTHERS => '0');
     BEGIN
         IF (rising_edge(clock_100MHz)) THEN
-            counter <= unsigned(counter + to_unsigned(1,counter'length));
+            counter <= unsigned(counter + to_unsigned(1, counter'length));
             if ( counter = ZEROS ) THEN
                 pulse <= '1';
             else
