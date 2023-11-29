@@ -4,7 +4,7 @@ use ieee.numeric_std.all ;
 
 entity char_buffer is
 	port (
-		p1_win, p2_win, reset, game_pulse : in std_logic;
+		p1_win, p2_win, reset, clk : in std_logic;
 		char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
 	) ;
 end char_buffer ; 
@@ -18,13 +18,13 @@ architecture behavior of char_buffer is
 
 begin
 
-    clocked_process : process(game_pulse, reset)
+    clocked_process : process(clk, reset)
     begin
         if ( reset = '1' ) then
 			-- on reset, assign buffer to be all spaces
             buffer_o <= X"20202020202020202020";
 			state <= gameplay;
-        elsif ( rising_edge(game_pulse) ) then
+        elsif ( rising_edge(clk) ) then
 			state <= next_state;
 			buffer_o <= buffer_comb;
 		end if;
@@ -35,13 +35,11 @@ begin
 		-- assign defaults
 		buffer_comb <= buffer_o;
 		next_state <= state;
-		-- fsm
 		case ( state ) is
 
 			when gameplay =>
 				if (p1_win = '1' or p2_win = '1') then
-					-- display winner in format "PX wins!"
-					-- use buffer(9:2)
+					-- display winner in format "PX wins!" using buffer(9:2)
 					buffer_comb((8*10)-1 downto (8*9)) <= X"50"; -- "P"
 					-- this does not handle ties, prioritizes p1
 					if (p1_win = '1') then
@@ -67,7 +65,7 @@ begin
 				end if;
 
 			when win =>
-				-- don't change anything
+				-- hold value
 				buffer_comb <= buffer_o;
 				-- stay in win state until reset
 				next_state <= win;

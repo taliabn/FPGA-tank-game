@@ -127,9 +127,6 @@ architecture structural of top_level is
 				reset : in std_logic;--,
 				scan_code : out std_logic_vector( 7 downto 0 );
 				scan_readyo : out std_logic;
-				-- hist3 : out std_logic_vector(7 downto 0);
-				-- hist2 : out std_logic_vector(7 downto 0);
-				-- hist1 : out std_logic_vector(7 downto 0);
 				hist0 : out std_logic_vector(7 downto 0)
 			);
 	end component ps2;
@@ -207,7 +204,6 @@ architecture structural of top_level is
     signal p1_scan_code, p1_scan_code_prev								: std_logic_vector(7 downto 0);
 	signal scan_readyo													: std_logic;
 	signal scan_code, hist0 											: std_logic_vector(7 downto 0);
-	-- signal hist1, hist2, hist3 : std_logic_vector(7 downto 0);
 
 	--Signals for VGA sync
 	signal pixel_row_int 										: std_logic_vector(9 downto 0);
@@ -277,7 +273,7 @@ begin
 			clk => pll_100MHz_clk
         );
 
-	-- initial_x_pos_bullet1 <= std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
+	initial_x_pos_bullet1 <= std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
     bullet1: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -286,7 +282,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
+            initial_x_pos => initial_x_pos_bullet1,
             initial_y_pos => y_pos_tank1,
             reset => inv_reset,
             fire => p1_fire,
@@ -298,7 +294,7 @@ begin
 			clk => pll_100MHz_clk
         );
 
-	-- initial_x_pos_bullet2 <= std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
+	initial_x_pos_bullet2 <= std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
 	bullet2: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -307,7 +303,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
+            initial_x_pos => initial_x_pos_bullet2,
             initial_y_pos => y_pos_tank2,
             reset => inv_reset,
             fire => p2_fire,
@@ -403,19 +399,6 @@ begin
 				c0 =>  pll_100MHz_clk,
 				locked => locked
 		);
-	-- : vga_toplevel
-	-- 	port map(
-	-- 		CLOCK_50 => clk_50Mhz,
-	-- 		RESET_N	=> RESET_N,
-	-- 		VGA_RED => VGA_RED,
-	-- 		VGA_GREEN => VGA_GREEN,
-	-- 		VGA_BLUE => VGA_BLUE,
-	-- 		HORIZ_SYNC => HORIZ_SYNC,
-	-- 		VERT_Svga_top_level_unitYNC => VERT_SYNC,
-	-- 		VGA_BLANK => VGA_BLANK,
-	-- 		VGA_CLK => VGA_CLK
-	-- );
-
 
 	-- CONTROLLER
 
@@ -427,9 +410,6 @@ begin
 			reset => reset,
 			scan_code => scan_code,
 			scan_readyo => scan_readyo,
-			-- hist3 => hist3,
-			-- hist2 => hist2,
-			-- hist1 => hist1,
 			hist0 => hist0
 		);
 

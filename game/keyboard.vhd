@@ -11,7 +11,7 @@ ENTITY keyboard IS
 END keyboard;
 
 
-ARCHITECTURE a OF keyboard IS
+ARCHITECTURE keyboard_arch OF keyboard IS
 	SIGNAL INCNT : STD_LOGIC_VECTOR( 3 DOWNTO 0 );
 	SIGNAL SHIFTIN : STD_LOGIC_VECTOR( 8 DOWNTO 0 );
 	SIGNAL READ_CHAR, clock_enable : STD_LOGIC;
@@ -28,9 +28,8 @@ ARCHITECTURE a OF keyboard IS
 			END IF;
 		END PROCESS;
 	--This process filters the raw clock signal coming from the
-	-- keyboard using a shift register and two AND gates
-		Clock_filter:
-		PROCESS
+	-- keyboard using keyboard_arch shift register and two AND gates
+		Clock_filter: PROCESS
 			BEGIN
 			WAIT UNTIL clock_50MHz'EVENT AND clock_50MHz = '1';
 			clock_enable <= NOT clock_enable;
@@ -56,7 +55,7 @@ ARCHITECTURE a OF keyboard IS
 				READ_CHAR <= '1';
 				ready_set <= '0';
 				ELSE
-					-- Shift in next 8 data bits to assemble a scan code
+					-- Shift in next 8 data bits to assemble keyboard_arch scan code
 					IF READ_CHAR = '1' THEN
 						IF INCNT < "1001" THEN
 							INCNT <= INCNT + 1;
@@ -74,4 +73,4 @@ ARCHITECTURE a OF keyboard IS
 				END IF;
 			END IF;
 		END PROCESS;
-END a;
+END keyboard_arch;

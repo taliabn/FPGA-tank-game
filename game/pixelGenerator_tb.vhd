@@ -78,8 +78,6 @@ begin
 			bullet2_y => bullet2_y
 		);
 
-	-- color <= red_out & green_out & blue_out;
-
     clk_process: process  is
     begin
         clk <= '0';
@@ -178,12 +176,10 @@ begin
 		wait for clk_period;
 		assert colorAddress = color_tank2 report "Test 0H failed" severity error;
 
-        -- Display a message when simulation finished
         assert false report "end of test" severity note;
 
-        -- Finish the simulation
         finished <= '1';
-		wait; -- very important line don't delete this one
+		wait;
 	end process test_process;
 
 end architecture behavioral;

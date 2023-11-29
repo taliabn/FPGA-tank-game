@@ -18,7 +18,7 @@ use ieee.numeric_std.all;
 -- when fired
 	-- model tells bullet to go to an xy (model knows that xy is the tank position)
 -- when collision
-	-- model tells bullet to fuckoff screen to an xy
+	-- model tells bullet to leave screen to an xy
 -- normal
 	-- bullet proceeds on its velocity
 
@@ -54,7 +54,6 @@ begin
             state <= idle;
             x_pos_int <= to_unsigned(1000, 10);
             y_pos_int <= to_unsigned(1000, 10);
-            -- report "bullet reset";
         elsif rising_edge(clk) then
             state <= next_state;
             x_pos_int <= next_x_pos;
@@ -117,13 +116,8 @@ begin
 				next_x_pos <= to_unsigned(1000, 10);
 				next_y_pos <= to_unsigned(1000, 10);
         end case;
-        -- display x_pos_int and y_pos_int;
-        -- report "bullet x_pos_int: " & integer'image(to_integer(x_pos_int));
-        -- report "bullet y_pos_int: " & integer'image(to_integer(y_pos_int));
-
     end process;
 
     x_pos_out <= std_logic_vector(x_pos_int);
     y_pos_out <= std_logic_vector(y_pos_int);
 end bullet_arch;
-

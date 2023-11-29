@@ -9,7 +9,6 @@ entity score_tb is
 end entity score_tb ;
 
 architecture behavioral of score_tb is
-	-- component declaration for the unit under test
 	component score is
 		port (
 			p1_hit, p2_hit, reset, clk: in std_logic;
@@ -18,15 +17,12 @@ architecture behavioral of score_tb is
 		);
 	end component score;
 
-	-- signals go here
     signal p1_hit, p2_hit: std_logic := '0'; 
 	signal reset, clk: std_logic := '0';
 	signal p1_score, p2_score : std_logic_vector(1 downto 0) := (others => '0');
 	signal p1_win, p2_win : std_logic := '0';
 
     signal finished : std_logic := '0';
-
-	-- Set the clk to 100 ps
 	constant clk_period : time := 100 ps;
 
 begin
@@ -82,8 +78,6 @@ begin
 		p2_hit <= '1'; 
 		wait for clk_period;
 
-	
-
 		assert p1_score = std_logic_vector(to_unsigned(1, 2)) report "Test 1 failed from p1_score" severity error;
 		assert p2_score = std_logic_vector(to_unsigned(0, 2)) report "Test 1 failed from p2_score" severity error;
 		assert p1_win = '0' report "Test 1 failed from p1_win" severity error;
@@ -92,11 +86,7 @@ begin
 		p1_hit <= '0'; 
 		p2_hit <= '0'; 
 		wait for clk_period;
-		-- report "p2_hit" & std_logic'image(p2_hit);
-		-- assert false report "p1_score: " & integer'image(to_integer(unsigned(p1_score))) severity note;
-		-- assert false report "p2_score: " & integer'image(to_integer(unsigned(p2_score))) severity note;
-		-- finished <= '1';
-		-- wait;
+
 		-- test 2: 1:1 (p1 hit)
 		p1_hit <= '1'; 
 		p2_hit <= '0'; 
@@ -149,6 +139,7 @@ begin
 		p1_hit <= '0'; 
 		p2_hit <= '0'; 
 		wait for clk_period;
+
 		-- test 6: 3:2 (p1 hit erroneously, scores shouldn't change)
 		p1_hit <= '1'; 
 		p2_hit <= '0'; 
@@ -159,12 +150,9 @@ begin
 		assert p1_win = '1' report "Test 6 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 6 failed from p2_win" severity error;
 
-        -- Display a message when simulation finished
         assert false report "end of test" severity note;
-
-        -- Finish the simulation
         finished <= '1';
-		wait; -- very important line don't delete this one
+		wait;
 	end process test_process;
 
 end architecture behavioral;

@@ -12,7 +12,7 @@ ENTITY de2lcd IS
 		DATA_BUS				: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0));
 END de2lcd;
 
-ARCHITECTURE a OF de2lcd IS
+ARCHITECTURE lcd_arch OF de2lcd IS
 	TYPE STATE_TYPE IS (HOLD, FUNC_SET, DISPLAY_ON, MODE_SET, WRITE_CHAR1,
 	WRITE_CHAR2,WRITE_CHAR3,WRITE_CHAR4,WRITE_CHAR5,WRITE_CHAR6,WRITE_CHAR7,
 	WRITE_CHAR8, WRITE_CHAR9, WRITE_CHAR10, RETURN_HOME, TOGGLE_E, RESET1, RESET2, 
@@ -31,20 +31,12 @@ BEGIN
 	PROCESS
 	BEGIN
 	 WAIT UNTIL CLK_50MHZ'EVENT AND CLK_50MHZ = '1';
-	 	-- somehow it works without having initial values
-		-- if reset is used this way, it can't be the same as the global game reset signal
-		-- other ways, de2lcd process pauses and screen isn't cleared on reset
-		-- IF RESET = '0' THEN
-		--  CLK_COUNT_400HZ <= X"00000";
-		--  CLK_400HZ <= '0';
-		-- ELSE
-				IF CLK_COUNT_400HZ < X"0F424" THEN 
-				 CLK_COUNT_400HZ <= CLK_COUNT_400HZ + 1;
-				ELSE
-		    	 CLK_COUNT_400HZ <= X"00000";
-				 CLK_400HZ <= NOT CLK_400HZ;
-				END IF;
-		-- END IF;
+		IF CLK_COUNT_400HZ < X"0F424" THEN 
+			CLK_COUNT_400HZ <= CLK_COUNT_400HZ + 1;
+		ELSE
+			CLK_COUNT_400HZ <= X"00000";
+			CLK_400HZ <= NOT CLK_400HZ;
+		END IF;
 	END PROCESS;
 --sensitive to new clock
 	PROCESS (CLK_400HZ, reset)
@@ -225,4 +217,4 @@ BEGIN
 			END CASE;
 		END IF;
 	END PROCESS;
-END a;
+END lcd_arch;
