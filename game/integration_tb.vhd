@@ -607,7 +607,7 @@ architecture behavioral of integration_tb is
 
             finished <= '1';
             assert false report "If no assertions failed, tests successful! Ending" severity note;
-            report "End of TestBench: Modules passed are tank, bullet, collision_check, and score" severity note;
+            report "End of TestBench: Modules passed are tank, bullet, collision_check, score, and char buffer" severity note;
             wait;
         end process;
 

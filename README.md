@@ -32,7 +32,9 @@ The game was designed in a modular fashion, with each component of the game bein
 
 We wanted to create a fully structural top-level module for our design, so each of these modules needed to operate independently of each other, and have outputs that could be directly connected to each other. Before beginning the project, we fully scaffolded out what each module would need to perform, the widths of each `std_logic` or `std_logic_vector` signal, and the inputs and outputs of each module. This allowed us to plan for a fully structural top-level module, and allowed us to easily integrate each module together.
 
-Infrastructure modules were created first and leveraged the provided miniproject code. These modules included
+Additionally, this design strategy allowed us to divide up the work, and work/test each module independently (see below for more details on our testing strategy).
+
+Infrastructure modules were created first and leveraged the provided miniproject code where applicable. These modules included
 
  - VGA Controller
  - PS/2 Keyboard Controller
@@ -45,8 +47,6 @@ We then scaffolded and mapped out the other modules needed. In addition to our t
  - Bullet
  - Scoring
  - Collision Detection
-
-Additionally, this design strategy allowed us to divide up the work, and work/test each module independently (see below for more details on our testing strategy).
 
 **PLL:**
 The base DE2-115 board has a 50 MHz clock, but for the purposes of the assignment we decided to use a 100 MHz clock. This allowed us to have a higher resolution game. To step between these speeds, we created a PLL module using the Quartus software that took in the 50 MHz clock and output a 100 MHz clock. This PLL module is located in our [pll.vhd](game/pll.vhd) file.
@@ -99,6 +99,8 @@ The other input is hardware button LED-G0 on the dev board, which is used to res
 
 ## Simulation Figures and Testing Methodology
 As mentioned above, we created simple tests, fully testing one or two modules at a time in simulation before integrating them into larger tests. We chose to structure most of our tests using `assert` statements, as this allowed us to easily see if the test passed or failed. We also used `report` statements to print out the values of signals, and `wait` statements to pause the simulation. This allowed us to easily run many testbenches at the same time with a bash script to rapidly find issues. Each testbench operates independently, and has hard-coded inputs and outputs.
+
+We were able to confidently test all modules except for the clock counter module, which were were unable to exhaustively test in simulation due to the very high number of clock cycles (100M+) required to test its full functionality. We were able to test the clock counter module in simulation by using a smaller counter, and then testing the full functionality on the FPGA.
 
 
 ## Synthesis Results

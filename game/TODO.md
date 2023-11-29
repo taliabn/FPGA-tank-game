@@ -9,7 +9,7 @@ lets finish this project!
   - [X] fix score tb
   - [X] fix kb_mapper tb
   - [X] Fix pixel generator tb
-  - [ ] simulation of integration testbench
+  - [X] simulation of integration testbench
   - [X] testbench where a tank shoots another tank, and collision_check works
   - [X] Verify that testbench with single tank and bullet
     - bullet_tank_tb.vhd working, tests a single bullet and tank togther
