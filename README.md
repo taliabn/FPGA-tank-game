@@ -18,6 +18,7 @@
     - [Scoring](#scoring)
   - [Board Implementation and Peripherals](#board-implementation-and-peripherals)
   - [Simulation Figures and Testing Methodology](#simulation-figures-and-testing-methodology)
+          - [Zoomed in view of clock counter simulation](#zoomed-in-view-of-clock-counter-simulation)
   - [Synthesis Results](#synthesis-results)
     - [Used memory:](#used-memory)
     - [Clocks:](#clocks)
@@ -105,6 +106,9 @@ The other input is hardware button LED-G0 on the dev board, which is used to res
 ## Simulation Figures and Testing Methodology
 As mentioned above, we created simple tests, fully testing one or two modules at a time in simulation before integrating them into larger tests. We chose to structure most of our tests using `assert` statements, as this allowed us to easily see if the test passed or failed. We also used `report` statements to print out the values of signals, and `wait` statements to pause the simulation. This allowed us to easily run many testbenches at the same time with a bash script to rapidly find issues. Each testbench operates independently, and has hard-coded inputs and outputs.
 
+To run our plethora of testbenches, we used `GHDL` and `ModelSim`. We found `GHDL` to be a very useful tool when running testbenches from the command line, as its speed and fast compile times were orders of magnitude faster than ModelSim - compiling and running testbenches took 0-5 seconds compared to minutes in `ModelSim`.
+After initially testing with GHDL, used `ModelSim` to view the waveforms of our testbenches to ensure that they were working as expected, comparing with the transcript to be doubly sure. Screenshots of waveforms may be found below.
+
 We were able to confidently test all modules except for the clock counter module, which were were unable to exhaustively test in simulation due to the very high number of clock cycles (100M+) required to test its full functionality. We were able to test the clock counter module in simulation by using a smaller counter, and then testing the full functionality on the FPGA.
 
 **bullet_tank_tb.vhd**
@@ -151,8 +155,12 @@ We were able to confidently test all modules except for the clock counter module
 
 **clock_counter_small_tb.vhd**
   * Tests a modified version of the clock counter (max width is 11 bits rather than 21)
-  * Shows proper behavior 
+  * Shows proper behavior
   * Tests single module
+
+![clock_counter_small waveform subset](images/clk_counter.png)
+###### Zoomed in view of clock counter simulation
+
 
 ## Synthesis Results
 **Includes memory, clocks, and resource utilization**
