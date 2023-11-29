@@ -20,7 +20,7 @@ architecture behavioral of collision_check_tb is
         );
         port(
             obja_x, obja_y, objb_x, objb_y: in std_logic_vector(9 downto 0);
-            reset, game_pulse: in std_logic;
+            reset, clk: in std_logic;
             is_collision: out std_logic
         );
     end component collision_check;
@@ -29,7 +29,7 @@ architecture behavioral of collision_check_tb is
 
     signal is_collision: std_logic;
 
-    signal reset, game_pulse: std_logic;
+    signal reset, clk: std_logic;
 
     -- Clock is 30 hZ
     -- Therefore period is 33.33333 ms or 33,333,333 ns
@@ -55,16 +55,16 @@ begin
             objb_x => objb_x,
             objb_y => objb_y,
             reset => reset,
-            game_pulse => game_pulse,
+            clk => clk,
             is_collision => is_collision
         );
 
     -- Clock process definitions
     clk_process: process is
     begin
-        game_pulse <= '0';
+        clk <= '0';
         wait for clk_period/2;
-        game_pulse <= '1';
+        clk <= '1';
         wait for clk_period/2;
 
         if finished_1 = '1' then
