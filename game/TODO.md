@@ -1,4 +1,4 @@
-# To-Do List for CE 355 Final Tank Game 
+# To-Do List for CE 355 Final Tank Game
 lets finish this project!
 
 ## Todo for demo
@@ -10,9 +10,10 @@ lets finish this project!
   - [ ] fix kb_mapper tb
   - [ ] fix pixel generator tb
   - [ ] simulation of integration testbench
-  - [ ] testbench where a tank shoots another tank, and collision_check works 
+  - [X] testbench where a tank shoots another tank, and collision_check works
+  - [X] Verify that testbench with single tank and bullet
+    - bullet_tank_tb.vhd working, tests a single bullet and tank togther
   - [ ] Script testbenches together?
-  - [ ] Verify that testbench with just tank and bullet still works
 -
 
 ## Report

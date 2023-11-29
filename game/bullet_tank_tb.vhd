@@ -184,7 +184,6 @@ architecture behavioral of bullet_tank_tb is
 
             -- Fire bullet, x=52, y=1
             TB_fire_bullet <= '1';
-
             TB_game_pulse <= '1';
             wait for clk_period;
             TB_game_pulse <= '0';
@@ -334,7 +333,7 @@ architecture behavioral of bullet_tank_tb is
             -- report "TankX: " & integer'image(to_integer(unsigned(TB_tank_x_pos_out))) & " TankY: " & integer'image(to_integer(unsigned(TB_tank_y_pos_out))) severity note;
 
             finished <= '1';
-            assert false report "Ending" severity note;
+            assert false report "If no assertions failed, tests successful! Ending" severity note;
             wait;
         end process;
 
