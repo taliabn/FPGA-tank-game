@@ -90,7 +90,7 @@ architecture structural of top_level is
 	-- VIEW
 	component char_buffer is
 		port (
-			p1_win, p2_win, reset, game_pulse : in std_logic;
+			p1_win, p2_win, reset, clk : in std_logic;
 			char_buffer_80_chars : out std_logic_vector(80 - 1 downto 0)
 		);
 	end component char_buffer ;
@@ -356,7 +356,7 @@ begin
 			p1_win => p1_win,
 			p2_win => p2_win,
 			reset => inv_reset,
-			game_pulse => game_pulse,
+			clk => pll_100MHz_clk,
 			char_buffer_80_chars => char_buffer_80_chars
 		);
 

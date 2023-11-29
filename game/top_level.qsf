@@ -82,20 +82,20 @@ set_location_assignment PIN_G20 -to RESET_LED
 set_location_assignment PIN_H15 -to SEC_LED
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -entity de2lcd -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity de2lcd -section_id Top
-set_location_assignment PIN_AB19 -to segments_out_p1[0]
-set_location_assignment PIN_AA19 -to segments_out_p1[1]
-set_location_assignment PIN_AG21 -to segments_out_p1[2]
-set_location_assignment PIN_AH21 -to segments_out_p1[3]
-set_location_assignment PIN_AE19 -to segments_out_p1[4]
-set_location_assignment PIN_AF19 -to segments_out_p1[5]
-set_location_assignment PIN_AE18 -to segments_out_p1[6]
-set_location_assignment PIN_AA17 -to segments_out_p2[0]
-set_location_assignment PIN_AB16 -to segments_out_p2[1]
-set_location_assignment PIN_AA16 -to segments_out_p2[2]
-set_location_assignment PIN_AB17 -to segments_out_p2[3]
-set_location_assignment PIN_AB15 -to segments_out_p2[4]
-set_location_assignment PIN_AA15 -to segments_out_p2[5]
-set_location_assignment PIN_AC17 -to segments_out_p2[6]
+set_location_assignment PIN_AA17 -to segments_out_p1[0]
+set_location_assignment PIN_AB16 -to segments_out_p1[1]
+set_location_assignment PIN_AA16 -to segments_out_p1[2]
+set_location_assignment PIN_AB17 -to segments_out_p1[3]
+set_location_assignment PIN_AB15 -to segments_out_p1[4]
+set_location_assignment PIN_AA15 -to segments_out_p1[5]
+set_location_assignment PIN_AC17 -to segments_out_p1[6]
+set_location_assignment PIN_AB19 -to segments_out_p2[0]
+set_location_assignment PIN_AA19 -to segments_out_p2[1]
+set_location_assignment PIN_AG21 -to segments_out_p2[2]
+set_location_assignment PIN_AH21 -to segments_out_p2[3]
+set_location_assignment PIN_AE19 -to segments_out_p2[4]
+set_location_assignment PIN_AF19 -to segments_out_p2[5]
+set_location_assignment PIN_AE18 -to segments_out_p2[6]
 set_global_assignment -name VHDL_FILE tank.vhd
 set_global_assignment -name VHDL_FILE ps2.vhd
 set_global_assignment -name VHDL_FILE pixelGenerator_tb.vhd
