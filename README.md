@@ -81,7 +81,8 @@ The scoring module is located in our [scoring.vhd](game/scoring.vhd) file. @tali
 
 ## Board Implementation and Peripherals
 **RTL Schematic**
-Goes here!
+<!-- Add photo images/rtl-diagram.png -->
+![RTL Schematic](images/rtl-diagram.png)
 
 The game was compiled, elaborated, and programmed onto the DE2-115 board using the Quartus software, upladed via the USB-Blaster. As can be seen from the above screenshot, the final RTL schematic of the top-level module is structural, with each module being connected to each other. The top-level module is located in our [top_level.vhd](game/top_level.vhd) file.
 
@@ -104,11 +105,77 @@ As mentioned above, we created simple tests, fully testing one or two modules at
 **Includes memory, clocks, and resource utilization**
 
 ### Used memory:
+192 / 3,981,312 ( < 1 % ) | Total block memory implementation bits:  9,216 / 3,981,312 ( < 1 % 
 
 ### Clocks:
 
+| Clock Name                                     | Type      | Period | Frequency | Rise  | Fall   | Duty Cycle | Divide by | Multiply by | Master | Targets            | Slack Setup | Slack Hold |
+|-----------------------------------------------:|-----------|--------|-----------|-------|--------|------------|-----------|-------------|--------|--------------------|-------------|------------|
+| pll_unit\|altpll_component\|auto_generated\|pll1\|clk[0] | Generated | 10.000 | 100.0 MHz | 0.000 | 5.000  | 50.00      | 1         | 2           | SYSCLK | SYSCLK             | 1.598       | 0.402      |
+| SYSCLK                                         | Base      | 20.000 | 50.0 MHz  | 0.000 | 10.000 |            |           |             |        | clk_50Mhz           | 4.032       | 0.405      |
+
 ### FMax:
+###### Slow 1200mV 85C Model Fmax Summary
+| Fmax       | Restricted Fmax | Clock Name                                           |
+|------------|-----------------|------------------------------------------------------|
+| 159.8 MHz  | 159.8 MHz       | pll_unit\|altpll_component\|auto_generated\|pll1\|clk[0] |
+| 219.49 MHz | 219.49 MHz      | SYSCLK                                               |
+
+The maximum frequency available is 159.8 MHz which is 59 MHz higher than the current maximum system frequency of 100 MHz.
+
+The longest datapaths are from keyboard mapper to tank module, and has a data delay of 5.148 with skew of -3.202
+
 
 ### Resource utilization:
+
+###### Fitter Resource Usage Summary
+
+| Resource                                    | Usage                       |
+|-------------------------------------------: |:--------------------------- |
+| Total logic elements                        | 742 / 114,480 ( < 1 % )     |
+|     -- Combinational with no register       | 463                         |
+|     -- Register only                        | 49                          |
+|     -- Combinational with a register        | 230                         |
+|                                             |                             |
+| Logic element usage by number of LUT inputs |                             |
+|     -- 4 input functions                    | 211                         |
+|     -- 3 input functions                    | 207                         |
+|     -- <=2 input functions                  | 275                         |
+|     -- Register only                        | 49                          |
+|                                             |                             |
+| Logic elements by mode                      |                             |
+|     -- normal mode                          | 387                         |
+|     -- arithmetic mode                      | 306                         |
+|                                             |                             |
+| Total registers*                            | 279 / 117,053 ( < 1 % )     |
+|     -- Dedicated logic registers            | 279 / 114,480 ( < 1 % )     |
+|     -- I/O registers                        | 0 / 2,573 ( 0 % )           |
+|                                             |                             |
+| Total LABs:  partially or completely used   | 56 / 7,155 ( < 1 % )        |
+| Virtual pins                                | 0                           |
+| I/O pins                                    | 63 / 529 ( 12 % )           |
+|     -- Clock pins                           | 1 / 7 ( 14 % )              |
+|     -- Dedicated input pins                 | 0 / 9 ( 0 % )               |
+|                                             |                             |
+| M9Ks                                        | 1 / 432 ( < 1 % )           |
+| Total block memory bits                     | 192 / 3,981,312 ( < 1 % )   |
+| Total block memory implementation bits      | 9,216 / 3,981,312 ( < 1 % ) |
+| Embedded Multiplier 9-bit elements          | 0 / 532 ( 0 % )             |
+| PLLs                                        | 1 / 4 ( 25 % )              |
+| Global signals                              | 6                           |
+|     -- Global clocks                        | 6 / 20 ( 30 % )             |
+| JTAGs                                       | 0 / 1 ( 0 % )               |
+| CRC blocks                                  | 0 / 1 ( 0 % )               |
+| ASMI blocks                                 | 0 / 1 ( 0 % )               |
+| Oscillator blocks                           | 0 / 1 ( 0 % )               |
+| Impedance control blocks                    | 0 / 4 ( 0 % )               |
+| Average interconnect usage (total/H/V)      | 0.3% / 0.3% / 0.2%          |
+| Peak interconnect usage (total/H/V)         | 5.9% / 6.2% / 5.5%          |
+| Maximum fan-out                             | 101                         |
+| Highest non-global fan-out                  | 100                         |
+| Total fan-out                               | 2952                        |
+| Average fan-out                             | 2.55                        |
+
+* Register count does not include registers inside RAM blocks or DSP blocks.
 
 
