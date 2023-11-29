@@ -172,17 +172,25 @@ architecture structural of top_level is
 	end component VGA_SYNC;
 
 	-- system
-	component clk30 is
-    	PORT (
-			clock_50Mhz : IN STD_LOGIC;
+	component clock_counter is
+    	port (
+			clock_100Mhz : IN STD_LOGIC;
           	pulse : OUT STD_LOGIC
 		);
-	end component clk30;
+	end component clock_counter;
 
-
+	component pll is
+		port (
+			areset		: IN STD_LOGIC  := '0';
+			inclk0		: IN STD_LOGIC  := '0';
+			c0			: OUT STD_LOGIC ;
+			locked		: OUT STD_LOGIC 
+		);
+	end component pll;
 
 	-- signals
-	signal p1_win, p2_win, game_pulse, inv_reset						: std_logic;
+	signal game_pulse, inv_reset, pll_100MHz_clk, locked				: std_logic;
+	signal p1_win, p2_win												: std_logic;
 	signal p1_score, p2_score 											: std_logic_vector(1 downto 0);
 	signal char_buffer_80_chars 										: std_logic_vector(80 - 1 downto 0);
 	signal data_in_p1 													: std_logic_vector(3 downto 0);
@@ -216,14 +224,14 @@ begin
 	p1_fire_o <= p1_fire;
 	score_unit: score
 		generic map(
-			-- TO MAKE TESTING EASIER, TEMPORARILY SET WIN CONDITION TO 1 POINT
-			win_score => "01" 
+			-- Value that player wins at
+			win_score => "11" 
 		)
 		port map(
 			p1_hit => is_collision_bullet2_tank1,
 			p2_hit => is_collision_bullet1_tank2,
 			reset => inv_reset,
-			clk => clk_50Mhz,
+			clk => pll_100MHz_clk,
 			p1_score => p1_score,
 			p2_score => p2_score,
 			p1_win => p1_win,
@@ -245,7 +253,7 @@ begin
             lost_game => p2_win,
             x_pos_out => x_pos_tank1,
             y_pos_out => y_pos_tank1,
-			clk => clk_50Mhz
+			clk => pll_100MHz_clk
         );
 
 	tank2: tank
@@ -263,7 +271,7 @@ begin
             lost_game => p1_win,
             x_pos_out => x_pos_tank2,
             y_pos_out => y_pos_tank2,
-			clk => clk_50Mhz
+			clk => pll_100MHz_clk
         );
 
 	initial_x_pos_bullet1 <= std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
@@ -284,7 +292,7 @@ begin
             game_over => p2_win,
             x_pos_out => x_pos_bullet1,
             y_pos_out => y_pos_bullet1,
-			clk => clk_50Mhz
+			clk => pll_100MHz_clk
         );
 
 	initial_x_pos_bullet2 <= std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
@@ -305,7 +313,7 @@ begin
             game_over => p1_win,
             x_pos_out => x_pos_bullet2,
             y_pos_out => y_pos_bullet2,
-			clk => clk_50Mhz
+			clk => pll_100MHz_clk
         );
 
 	collision_check_tank1_bullet2: collision_check
@@ -321,7 +329,7 @@ begin
 			objb_x => x_pos_bullet2,
 			objb_y => y_pos_bullet2,
 			reset => inv_reset,
-			clk => clk_50Mhz,
+			clk => pll_100MHz_clk,
 			is_collision => is_collision_bullet2_tank1
 		);
 
@@ -338,7 +346,7 @@ begin
 			objb_x => x_pos_bullet1,
 			objb_y => y_pos_bullet1,
 			reset => inv_reset,
-			clk => clk_50Mhz,
+			clk => pll_100MHz_clk,
 			is_collision => is_collision_bullet1_tank2
 		);
 
@@ -379,12 +387,19 @@ begin
 			DATA_BUS => DATA_BUS
 		);
 
-	clk30_unit: clk30
+	clock_counter_unit: clock_counter
 		port map(
-			clock_50Mhz => clk_50Mhz,
+			clock_100MHz => pll_100MHz_clk,
 			pulse => game_pulse
 		);
 
+	pll_unit: pll
+		port map(
+				areset	=> inv_reset,
+				inclk0	=> clk_50Mhz,
+				c0 =>  pll_100MHz_clk,
+				locked => locked
+		);
 	-- : vga_toplevel
 	-- 	port map(
 	-- 		CLOCK_50 => clk_50Mhz,

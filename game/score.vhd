@@ -17,7 +17,7 @@ architecture behavior of score is
 	signal p1_score_comb, p2_score_comb, p1_score_o, p2_score_o : std_logic_vector(1 downto 0) := (others => '0'); 
 	signal p1_win_comb, p2_win_comb, p1_win_o, p2_win_o : std_logic := '0'; 
 
-	type t_state is (gameplay, win);
+	type t_state is (gameplay, win, scored);
 	signal state, next_state: t_state;
 
 begin
@@ -53,7 +53,18 @@ begin
 
 		-- fsm
 		case ( state ) is
-
+			when scored =>
+				-- wait for reset or neither player hit
+				if ( reset = '1' or ( (p1_hit = '0') and (p2_hit = '0')) ) then
+					next_state <= gameplay;
+				else
+					next_state <= scored;
+				end if; 
+				-- hold values
+				p1_score_comb <= p1_score_o;
+				p2_score_comb <= p2_score_o;
+				p1_win_comb <= p1_win_o;
+				p2_win_comb <= p2_win_o;
 			when gameplay =>
 				-- update scores
 				tmp_p1 := unsigned(p1_score_o) + unsigned'('0' & p2_hit);
@@ -63,7 +74,7 @@ begin
 				p2_score_comb <= std_logic_vector(tmp_p2);
 
 				-- default to returning to gameplay
-				next_state <= gameplay;
+				next_state <= scored;
 
 				-- update winners and conditionally move to win state (allowing for ties)
 				if (tmp_p1 >= win_score) then

@@ -18,14 +18,20 @@ end entity pixelGenerator;
 
 architecture behavioral of pixelGenerator is
 
-	constant color_tank1 	: std_logic_vector(2 downto 0) := "000"; -- red
-	constant color_bullet2	: std_logic_vector(2 downto 0) := "001"; -- green
-	constant color_tank2 	: std_logic_vector(2 downto 0) := "010"; -- blue
-	constant color_bullet1	: std_logic_vector(2 downto 0) := "011"; -- yellow
-	constant color_magenta 	: std_logic_vector(2 downto 0) := "100";
-	constant color_cyan 	: std_logic_vector(2 downto 0) := "101";
-	constant color_bg 		: std_logic_vector(2 downto 0) := "110"; -- black
+	constant color_dk_red 	: std_logic_vector(2 downto 0) := "000"; -- red
+	constant color_dk_blue 	: std_logic_vector(2 downto 0) := "001"; -- red
+	constant color_lt_red	: std_logic_vector(2 downto 0) := "010"; -- green
+	constant color_lt_blue 	: std_logic_vector(2 downto 0) := "011"; -- blue
+	-- constant color_magenta 	: std_logic_vector(2 downto 0) := "100";
+	-- constant color_cyan 	: std_logic_vector(2 downto 0) := "101";
+	constant color_black 		: std_logic_vector(2 downto 0) := "110"; -- black
 	constant color_white	: std_logic_vector(2 downto 0) := "111"; -- white
+
+	constant color_tank1 	: std_logic_vector(2 downto 0) := color_dk_red;
+	constant color_tank2    : std_logic_vector(2 downto 0) := color_dk_blue;
+	constant color_bullet1  : std_logic_vector(2 downto 0) := color_lt_red;
+	constant color_bullet2  : std_logic_vector(2 downto 0) := color_lt_blue;
+	constant color_bg 		: std_logic_vector(2 downto 0) := color_black;
 	
 	component colorROM is
 		port(
@@ -90,8 +96,6 @@ begin
 				  (pixel_col_int < tank2_x_int + TANK_WIDTH)
 			) then
 				colorAddress <= color_tank2;
-			-- bullets should have a higher "z" layer, 
-			-- this will be useful in case we messed up something with collisions timing
 			-- else if in bullet 1
 			elsif ((pixel_row_int >= bullet1_y_int) and 
 				   (pixel_row_int < bullet1_y_int + BULLET_HEIGHT) and
