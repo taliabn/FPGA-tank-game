@@ -40,11 +40,19 @@ architecture behavioral of pixelGenerator_tb is
 	-- Set the ROM clock period to 50 ps (not sure what it is on the board)
 	constant ROM_clk_period : time := 50 ps;
 
-	constant color_tank1 	: std_logic_vector(2 downto 0) := "000"; -- red
-	constant color_bullet2	: std_logic_vector(2 downto 0) := "001"; -- green
-	constant color_tank2 	: std_logic_vector(2 downto 0) := "010"; -- blue
-	constant color_bullet1	: std_logic_vector(2 downto 0) := "011"; -- yellow
-	constant color_bg		: std_logic_vector(2 downto 0) := "110"; -- black
+	constant color_dk_red 	: std_logic_vector(2 downto 0) := "000"; -- dark red
+	constant color_dk_blue 	: std_logic_vector(2 downto 0) := "001"; -- dark blue
+	constant color_lt_red	: std_logic_vector(2 downto 0) := "010"; -- light red
+	constant color_lt_blue 	: std_logic_vector(2 downto 0) := "011"; -- light blue
+	constant color_black 	: std_logic_vector(2 downto 0) := "110"; -- black
+	constant color_white	: std_logic_vector(2 downto 0) := "111"; -- white
+
+	constant color_tank1 	: std_logic_vector(2 downto 0) := color_dk_red;
+	constant color_tank2    : std_logic_vector(2 downto 0) := color_dk_blue;
+	constant color_bullet1  : std_logic_vector(2 downto 0) := color_lt_red;
+	constant color_bullet2  : std_logic_vector(2 downto 0) := color_lt_blue;
+	constant color_bg 		: std_logic_vector(2 downto 0) := color_black;
+	
 
 begin
     dut: pixelGenerator

@@ -10,7 +10,7 @@ entity pixelGenerator is
 		clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 		pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
 		red_out, green_out, blue_out					: out std_logic_vector(7 downto 0);
-		-- test_address 									: out std_logic_vector(2 downto 0);
+		test_address 									: out std_logic_vector(2 downto 0);
 		tank1_x, tank1_y, tank2_x, tank2_y				: in std_logic_vector(9 downto 0);
 		bullet1_x, bullet1_y, bullet2_x, bullet2_y 		: in std_logic_vector(9 downto 0)
 	);
@@ -18,13 +18,11 @@ end entity pixelGenerator;
 
 architecture behavioral of pixelGenerator is
 
-	constant color_dk_red 	: std_logic_vector(2 downto 0) := "000"; -- red
-	constant color_dk_blue 	: std_logic_vector(2 downto 0) := "001"; -- red
-	constant color_lt_red	: std_logic_vector(2 downto 0) := "010"; -- green
-	constant color_lt_blue 	: std_logic_vector(2 downto 0) := "011"; -- blue
-	-- constant color_magenta 	: std_logic_vector(2 downto 0) := "100";
-	-- constant color_cyan 	: std_logic_vector(2 downto 0) := "101";
-	constant color_black 		: std_logic_vector(2 downto 0) := "110"; -- black
+	constant color_dk_red 	: std_logic_vector(2 downto 0) := "000"; -- dark red
+	constant color_dk_blue 	: std_logic_vector(2 downto 0) := "001"; -- dark blue
+	constant color_lt_red	: std_logic_vector(2 downto 0) := "010"; -- light red
+	constant color_lt_blue 	: std_logic_vector(2 downto 0) := "011"; -- light blue
+	constant color_black 	: std_logic_vector(2 downto 0) := "110"; -- black
 	constant color_white	: std_logic_vector(2 downto 0) := "111"; -- white
 
 	constant color_tank1 	: std_logic_vector(2 downto 0) := color_dk_red;
@@ -119,7 +117,7 @@ begin
 		
 	end process pixelDraw;	
 
-	-- test_address <= colorAddress;
+	test_address <= colorAddress;
 
 --------------------------------------------------------------------------------------------
 	
