@@ -8,7 +8,10 @@ entity keyboard_mapper is
 		MED_KEY: std_logic_vector(7 downto 0) := X"1F";
 		FAST_KEY: std_logic_vector(7 downto 0) := X"20";
 		FIRE_KEY: std_logic_vector(7 downto 0) := X"17";
-		BREAK_CODE: std_logic_vector(7 downto 0) := X"F0"
+		BREAK_CODE: std_logic_vector(7 downto 0) := X"F0";
+		SLOW_SPEED: std_logic_vector(1 downto 0) := "01";
+		MED_SPEED: std_logic_vector(1 downto 0) := "10";
+		FAST_SPEED: std_logic_vector(1 downto 0) := "11"
 	);
 	port (
 		reset, clk: in std_logic;
@@ -25,9 +28,6 @@ architecture behavior of keyboard_mapper is
 	signal speed_next: std_logic_vector(1 downto 0) := (others => '0'); 
 	type t_state is (held, previously_released);
 	signal state, next_state: t_state;
-	constant SLOW_SPEED:  std_logic_vector(1 downto 0) := "01";
-	constant MED_SPEED:  std_logic_vector(1 downto 0) := "10";
-	constant FAST_SPEED:  std_logic_vector(1 downto 0) := "11";
 
 begin
 

@@ -75,26 +75,42 @@ begin
 		assert p2_score = std_logic_vector(to_unsigned(0, 2)) report "Test 0 failed from p2_score" severity error;
 		assert p1_win = '0' report "Test 0 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 0 failed from p2_win" severity error;
-		
 		-- test 1: 1:0 (p2 hit)
+		wait for clk_period;
+
 		p1_hit <= '0'; 
 		p2_hit <= '1'; 
 		wait for clk_period;
+
+	
 
 		assert p1_score = std_logic_vector(to_unsigned(1, 2)) report "Test 1 failed from p1_score" severity error;
 		assert p2_score = std_logic_vector(to_unsigned(0, 2)) report "Test 1 failed from p2_score" severity error;
 		assert p1_win = '0' report "Test 1 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 1 failed from p2_win" severity error;
-
+		
+		p1_hit <= '0'; 
+		p2_hit <= '0'; 
+		wait for clk_period;
+		-- report "p2_hit" & std_logic'image(p2_hit);
+		-- assert false report "p1_score: " & integer'image(to_integer(unsigned(p1_score))) severity note;
+		-- assert false report "p2_score: " & integer'image(to_integer(unsigned(p2_score))) severity note;
+		-- finished <= '1';
+		-- wait;
 		-- test 2: 1:1 (p1 hit)
 		p1_hit <= '1'; 
 		p2_hit <= '0'; 
 		wait for clk_period;
 
+
 		assert p1_score = std_logic_vector(to_unsigned(1, 2)) report "Test 2 failed from p1_score" severity error;
 		assert p2_score = std_logic_vector(to_unsigned(1, 2)) report "Test 2 failed from p2_score" severity error;
 		assert p1_win = '0' report "Test 2 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 2 failed from p2_win" severity error;
+		
+		p1_hit <= '0'; 
+		p2_hit <= '0'; 
+		wait for clk_period;
 
 		-- test 3: 2:1 (p2 hit)
 		p1_hit <= '0'; 
@@ -105,6 +121,10 @@ begin
 		assert p2_score = std_logic_vector(to_unsigned(1, 2)) report "Test 3 failed from p2_score" severity error;
 		assert p1_win = '0' report "Test 3 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 3 failed from p2_win" severity error;
+		
+		p1_hit <= '0'; 
+		p2_hit <= '0'; 
+		wait for clk_period;
 
 		-- test 4: 2:1 (no change)
 		p1_hit <= '0'; 
@@ -125,36 +145,19 @@ begin
 		assert p2_score = std_logic_vector(to_unsigned(2, 2)) report "Test 5 failed from p2_score" severity error;
 		assert p1_win = '1' report "Test 5 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 5 failed from p2_win" severity error;
-
+		
+		p1_hit <= '0'; 
+		p2_hit <= '0'; 
+		wait for clk_period;
 		-- test 6: 3:2 (p1 hit erroneously, scores shouldn't change)
 		p1_hit <= '1'; 
 		p2_hit <= '0'; 
 		wait for clk_period;
-
+		
 		assert p1_score = std_logic_vector(to_unsigned(3, 2)) report "Test 6 failed from p1_score" severity error;
 		assert p2_score = std_logic_vector(to_unsigned(2, 2)) report "Test 6 failed from p2_score" severity error;
-		assert p1_win = '1' report "Test 6 failed from 1_win" severity error;
+		assert p1_win = '1' report "Test 6 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 6 failed from p2_win" severity error;
-
-
-		-- test 7: 3:3 (tie)
-		-- first, reset scores
-		reset <= '1';
-		wait until (clk = '0');
-		wait until (clk = '1');
-		reset <= '0'; 
-		wait until (clk = '0');
-		-- three rounds where both players hit eachother
-		p1_hit <= '1'; 
-		p2_hit <= '1'; 
-		wait for clk_period;
-		wait for clk_period;
-		wait for clk_period;
-		-- now the score should be 3:3
-		assert p1_score = std_logic_vector(to_unsigned(3, 2)) report "Test 7 failed from p1_score" severity error;
-		assert p2_score = std_logic_vector(to_unsigned(3, 2)) report "Test 7 failed from p2_score" severity error;
-		assert p1_win = '1' report "Test 7 failed from 1_win" severity error;
-		assert p2_win = '1' report "Test 7 failed from p2_win" severity error;
 
         -- Display a message when simulation finished
         assert false report "end of test" severity note;

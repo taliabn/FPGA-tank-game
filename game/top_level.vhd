@@ -140,7 +140,10 @@ architecture structural of top_level is
 			MED_KEY: std_logic_vector(7 downto 0) := X"1F";
 			FAST_KEY: std_logic_vector(7 downto 0) := X"20";
 			FIRE_KEY: std_logic_vector(7 downto 0) := X"17";
-			BREAK_CODE: std_logic_vector(7 downto 0) := X"F0"
+			BREAK_CODE: std_logic_vector(7 downto 0) := X"F0";
+			SLOW_SPEED: std_logic_vector(1 downto 0) := "01";
+			MED_SPEED: std_logic_vector(1 downto 0) := "10";
+			FAST_SPEED: std_logic_vector(1 downto 0) := "11"
 		);
 		port (
 			reset, clk: in std_logic;

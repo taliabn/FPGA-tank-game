@@ -73,8 +73,12 @@ begin
 				p1_score_comb <= std_logic_vector(tmp_p1);
 				p2_score_comb <= std_logic_vector(tmp_p2);
 
-				-- default to returning to gameplay
-				next_state <= scored;
+				if (p1_hit='1') or (p2_hit='1') then
+					-- a score happened
+					next_state <= scored;
+				else
+					next_State <= gameplay;
+				end if;
 
 				-- update winners and conditionally move to win state (allowing for ties)
 				if (tmp_p1 >= win_score) then
@@ -89,7 +93,6 @@ begin
 				else
 					p2_win_comb <= '0';
 				end if;
-
 			when win =>
 				-- don't change anything
 				p1_score_comb <= p1_score_o;
@@ -98,13 +101,13 @@ begin
 				p2_win_comb <= p2_win_o;
 				-- stay in win state until reset
 				next_state <= win;
-
 			when others =>
-				p1_score_comb <= (others => 'X');
-				p2_score_comb <= (others => 'X');
-				p1_win_comb <= 'X';
-				p2_win_comb <= 'X';
+				p1_score_comb <= p1_score_o;
+				p2_score_comb <= p2_score_o;
+				p1_win_comb <= p1_win_o;
+				p2_win_comb <= p2_win_o;
 				next_state <= gameplay;
+				report "in others, you fucked up";
 		end case;
 	end process combo_process;
 
