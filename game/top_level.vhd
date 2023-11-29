@@ -277,7 +277,7 @@ begin
 			clk => pll_100MHz_clk
         );
 
-	initial_x_pos_bullet1 <= std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
+	-- initial_x_pos_bullet1 <= std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
     bullet1: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -286,7 +286,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => initial_x_pos_bullet1,
+            initial_x_pos => std_logic_vector(unsigned(x_pos_tank1) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
             initial_y_pos => y_pos_tank1,
             reset => inv_reset,
             fire => p1_fire,
@@ -298,7 +298,7 @@ begin
 			clk => pll_100MHz_clk
         );
 
-	initial_x_pos_bullet2 <= std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
+	-- initial_x_pos_bullet2 <= std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1));
 	bullet2: bullet
         generic map(
             color => std_logic_vector(to_unsigned(1, 3)),
@@ -307,7 +307,7 @@ begin
             max_y_val => to_unsigned(SCREEN_HEIGHT, 10)
         )
         port map(
-            initial_x_pos => initial_x_pos_bullet2,
+            initial_x_pos => std_logic_vector(unsigned(x_pos_tank2) + shift_right(to_unsigned(TANK_WIDTH, 10), 1)),
             initial_y_pos => y_pos_tank2,
             reset => inv_reset,
             fire => p2_fire,
