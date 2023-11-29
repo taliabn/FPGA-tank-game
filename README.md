@@ -21,7 +21,10 @@
   - [Synthesis Results](#synthesis-results)
     - [Used memory:](#used-memory)
     - [Clocks:](#clocks)
+    - [FMax:](#fmax)
+          - [Slow 1200mV 85C Model Fmax Summary](#slow-1200mv-85c-model-fmax-summary)
     - [Resource utilization:](#resource-utilization)
+          - [Fitter Resource Usage Summary](#fitter-resource-usage-summary)
 
 
 ## Introduction
@@ -66,6 +69,8 @@ When a player scores a point, the score is displayed on the 7-segment LED displa
 ### Clock Counter
 Since the game clock is 100 MHz, we needed a way to produce a pulse considerably slower to allow for the game to be playable. We targeted a 30 fps game. To do this, we created a clock counter module, located in our [clock_counter.vhd](game/clock_counter.vhd) file. This module takes in the 100 MHz clock and has a 21 bit counter inside. When the counter equals zero (values are unsigned so when the value of $2^{21}-1=2097151$ is passed, the counter resets to zero), the module outputs a pulse. This pulse is used to advance the game logic. This results in an FPS of roughly $\frac{100 *10^{6} Hz}{2^{21}}=47.68$ pulses per second. Each pulse is one clock tick long.
 
+![Clock Counter](images/game_pulse.png)
+
 ### Tank
 The tank module is located in our [tank.vhd](game/tank.vhd) file. The tank takes in a speed from 0-3. It moves in a direction until it reaches a side, in which case it bounces off and moves in the opposite direction. Tank stores its own position, and outputs this position to the top-level module. The tank also takes in a signal to let it know if it has lost the game, and should move off the screen.
 
@@ -102,12 +107,54 @@ As mentioned above, we created simple tests, fully testing one or two modules at
 
 We were able to confidently test all modules except for the clock counter module, which were were unable to exhaustively test in simulation due to the very high number of clock cycles (100M+) required to test its full functionality. We were able to test the clock counter module in simulation by using a smaller counter, and then testing the full functionality on the FPGA.
 
+**bullet_tank_tb.vhd**
+ * Tests the bullet and tank modules together
+ * Single tank moving back and forward
+   * Dynamic/changing speed
+ * Fires bullet
+ * Bullet moves, moves offscreen when applicable
+ * Bullet can be refired when needed
+
+**char_buffer_tb.vhd**
+  * Tests the char_buffer module
+  * Tests to make sure that the correct buffer is output for a given input
+  * Checks all used combinations of inputs
+
+**collision_check_tb.vhd**
+  * Tests the collision detection module
+  * Tests to make sure that the correct output is given for a given input
+  * Single module test; Simply uses numeric values, does not integrate tank
+
+**fire_collision_tb.vhd**
+ * Uses 2 tanks and 2 bullets, 1 collision detection module
+ * Static tank positions
+ * Fires bullets
+ * Checks to ensure bullets move correctly
+ * Check to ensure that detection of collision is correct
+ * Checks to ensure that bullets move offscreen at the correct time
+
+**integration_tb.vhd**
+ * Tests the full integration of tank, bullet, collision detection, score, LCD, and clock counter
+ * Simulation takes a long time to run, but tests the full functionality of the game minus the VGA output, 7-segment LED display, and moving tanks
+
+**kb_mapper_tb.vhd**
+ * Tests the keyboard input mapping module in simulation
+ * Tests to make sure that the correct output is given for a given input; correct speed is output for a given key press and is held appropriately
+
+**pixelGenerator_tb.vhd**
+  * Tests the pixel generator module in simulation
+  * Tests to make sure that the correct output is given for a given input
+
+**score_tb.vhd**
+  * Tests the score module in simulation
+  * Tests to make sure that the correct output is given for a given input
 
 ## Synthesis Results
 **Includes memory, clocks, and resource utilization**
 
 ### Used memory:
-192 / 3,981,312 ( < 1 % ) | Total block memory implementation bits:  9,216 / 3,981,312 ( < 1 % 
+ - 192 / 3,981,312 ( < 1 % )
+ - Total block memory implementation bits:  9,216 / 3,981,312 ( < 1 %
 
 ### Clocks:
 
