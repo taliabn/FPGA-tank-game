@@ -149,6 +149,11 @@ We were able to confidently test all modules except for the clock counter module
   * Tests the score module in simulation
   * Tests to make sure that the correct output is given for a given input
 
+**clock_counter_small_tb.vhd**
+  * Tests a modified version of the clock counter (max width is 11 bits rather than 21)
+  * Shows proper behavior 
+  * Tests single module
+
 ## Synthesis Results
 **Includes memory, clocks, and resource utilization**
 
