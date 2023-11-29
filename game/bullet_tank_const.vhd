@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 
 package bullet_tank_const is
-    constant BULLET_WIDTH : integer := 20;
+    constant BULLET_WIDTH : integer := 12;
     constant BULLET_HEIGHT : integer := 20;
     constant BULLET_SPEED : integer := 15;
 
