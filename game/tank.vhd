@@ -2,16 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- tank (two instances)
--- inputs:
-	-- speed (unsigned, comes from keyboard): in std_logic_vector (1 downto 0),
-	-- reset, game_pulse: in std_logic
--- generics: y_pos: std_logic_vector(9 downto 0),
-	-- color: std_logic_vector(2 downto 0)
--- outputs: x_pos_out, y_pos: out std_logic_vector(9 downto 0)
--- notes: will have two instances
-	-- direction is implicitly tracked with FSM
-
 
 entity tank is
     -- Tank X,Y should be set to the upper left corner of the tank, assuming that 0,0 is in the upper left corner of the screen

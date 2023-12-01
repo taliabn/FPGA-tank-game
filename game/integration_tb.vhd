@@ -318,7 +318,7 @@ architecture behavioral of integration_tb is
 			assert TB_score1 = std_logic_vector(to_unsigned(0, 2)) report "Score1 error" severity error;
             assert TB_score2 = std_logic_vector(to_unsigned(0, 2)) report "Score2 error" severity error;
 
-            -- Perform 10 more clock periods, ST the bullet should have moved 100 pixels
+            -- Perform 10 more game pulses, ST the bullet should have moved 100 pixels
             for i in 1 to 10 loop
                 TB_game_pulse <= '1';
                 wait for clk_period;
@@ -342,7 +342,7 @@ architecture behavioral of integration_tb is
             assert TB_score2 = std_logic_vector(to_unsigned(0, 2)) report "Score2 error" severity error;
 
             -- Collision will occur when the bullet is at 170-bullet_height = 160
-            -- Bullet will be at 161 at time of collision, so simulate 5 more clock periods (50 pixels)
+            -- Bullet will be at 161 at time of collision, so simulate 5 more game pulses (50 pixels)
             for i in 1 to 5 loop
                 TB_game_pulse <= '1';
                 wait for clk_period;
@@ -366,7 +366,7 @@ architecture behavioral of integration_tb is
 			assert TB_score1 = std_logic_vector(to_unsigned(1, 2)) report "Score1 error" severity error;
             assert TB_score2 = std_logic_vector(to_unsigned(0, 2)) report "Score2 error" severity error;
 
-            -- Tick 1 more clock period, the bullet should move off the screen
+            -- Tick 1 more game pulse, the bullet should move off the screen
             TB_game_pulse <= '1';
             wait for clk_period;
             TB_game_pulse <= '0';
@@ -413,7 +413,7 @@ architecture behavioral of integration_tb is
 			assert TB_score2 = std_logic_vector(to_unsigned(0, 2)) report "Score2 error" severity error;
 
             -- Collision will occur at 40 (top of tank 1)
-            -- Bullet will be at 40 at time of collision, so simulate 13 more clock periods (130 pixels)
+            -- Bullet will be at 40 at time of collision, so simulate 13 more game pulses (130 pixels)
             for i in 1 to 13 loop
                 TB_game_pulse <= '1';
                 wait for clk_period;
@@ -439,7 +439,7 @@ architecture behavioral of integration_tb is
 			assert TB_score1 = std_logic_vector(to_unsigned(1, 2)) report "Score1 error" severity error;
 			assert TB_score2 = std_logic_vector(to_unsigned(1, 2)) report "Score2 error" severity error;
 
-            -- Tick 1 more clock period, the bullet should move off the screen
+            -- Tick 1 more game pulse, the bullet should move off the screen
             TB_game_pulse <= '1';
             wait for clk_period;
             TB_game_pulse <= '0';
@@ -475,7 +475,7 @@ architecture behavioral of integration_tb is
 
             TB_fire1 <= '0';
 
-            -- Go through 20 clock periods
+            -- Go through 20 game pulses
             for i in 1 to 20 loop
                 TB_game_pulse <= '1';
                 wait for clk_period;
@@ -499,7 +499,7 @@ architecture behavioral of integration_tb is
 
             TB_fire1 <= '0';
 
-            -- Go through 20 clock periods
+            -- Go through 20 game pulses
             for i in 1 to 20 loop
                 TB_game_pulse <= '1';
                 wait for clk_period;
@@ -528,7 +528,7 @@ architecture behavioral of integration_tb is
             wait for clk_period;
             TB_fire2 <= '0';
 
-            -- Loop through 1000 clock periods
+            -- Loop through 1000 game pulses
             for i in 1 to 1000 loop
                 TB_game_pulse <= '1';
                 wait for clk_period;

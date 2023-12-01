@@ -31,27 +31,23 @@ architecture behavior of keyboard_mapper is
 
 begin
 
-	-- I think this should be fine timing wise because keys will probably not be pressed faster than 32 Hz
-	registered_process : process(clk, scan_ready, reset)
+	clocked_process : process(clk, scan_ready, reset)
     begin
         if ( reset = '1' ) then
 			-- on reset, assign speed to slow
             speed_prev <= SLOW_SPEED;
 			fire_o <= '0';
 			state <= previously_released;
-	-- triggered when a key is pressed (scan_ready)
 		elsif ( rising_edge(clk) ) then
 			speed_prev <= speed_next;
 			state <= next_state;
 			fire_o <= fire_comb;
 		end if;
-	end process registered_process;
+	end process clocked_process;
 
-	-- This is a mealy machine so that outputs are immediately visible
-	-- Moore machine would have 3 states
 	combo_process : process(state, scan_code, scan_code_prev, speed_prev, scan_ready) is
 	begin
-		-- happens regardless of state
+		-- checking speed should happen regardless of fire key state
 		if (scan_ready = '1') then
 			if ( (scan_code = SLOW_KEY) and (scan_code_prev /= BREAK_CODE) ) then
 				speed_next <= SLOW_SPEED;
@@ -59,8 +55,6 @@ begin
 				speed_next <= MED_SPEED;
 			elsif ( (scan_code = FAST_KEY) and (scan_code_prev /= BREAK_CODE ) ) then
 				speed_next <= FAST_SPEED;
-			-- idk why including this else case breaks things
-			-- quartus doesn't synthesize a latch with it commented out though
 			else
 				speed_next <= speed_prev; -- hold
 			end if;
@@ -68,15 +62,15 @@ begin
 			speed_next <= speed_prev; -- hold
 		end if;
 
-		-- assigns fire='1' only when fire key is initially pressed (edge triggered)
 		fire_comb <= '0';
 		next_state <= state;
+		-- assigns fire='1' only when fire key is initially pressed
 		case (state) is
 			-- fire key is being held down
 			when held =>
 				if (scan_ready = '1') then
 					if ((scan_code = FIRE_KEY ) and (scan_code_prev = break_code)) then
-						-- encountered break code
+						-- encountered break code, will be ready to fire again
 						next_state <= previously_released;
 					else
 						next_state <= held;
@@ -85,8 +79,7 @@ begin
 					next_state <= held;
 				end if;
 				fire_comb <= '0';
-			-- fire key has been released (or never pressed)
-			-- able to fire again
+			-- fire key has been released (or never pressed), so able to fire
 			when previously_released => 
 				if (scan_ready = '1') then
 					if ((scan_code = FIRE_KEY) and (scan_code_prev /= break_code)) then

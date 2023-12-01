@@ -2,10 +2,6 @@ LIBRARY IEEE;
 use IEEE.NUMERIC_STD.all;
 USE IEEE.STD_LOGIC_1164.ALL;
 
--- Uses the 50MHz clock
--- Generates a 30Hz clock, generating a pulse every 1/30th of a second
--- 50,000,000 / 30 = 1,666,666.66 ticks per pulse
--- Count to 1,666,667, pulse and reset
 
 ENTITY clock_counter IS
     PORT (clock_100Mhz : IN STD_LOGIC;

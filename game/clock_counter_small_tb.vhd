@@ -19,7 +19,6 @@ architecture behavioral of clock_counter_small_tb is
     signal finished : std_logic := '0';
 
     constant clk_period : time := 10 ns;
--- end clock_counter_small_tb;
 
 BEGIN
     dut : clock_counter_small
