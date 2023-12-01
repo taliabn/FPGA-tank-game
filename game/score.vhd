@@ -51,7 +51,6 @@ begin
 		p2_win_comb <= p2_win_o;
 		next_state <= state;
 
-		-- fsm
 		case ( state ) is
 			when scored =>
 				-- wait for reset or neither player hit
@@ -74,7 +73,7 @@ begin
 				p2_score_comb <= std_logic_vector(tmp_p2);
 
 				if (p1_hit='1') or (p2_hit='1') then
-					-- a score happened
+					-- a point was scored
 					next_state <= scored;
 				else
 					next_State <= gameplay;
@@ -107,7 +106,6 @@ begin
 				p1_win_comb <= p1_win_o;
 				p2_win_comb <= p2_win_o;
 				next_state <= gameplay;
-				report "in others, you fucked up";
 		end case;
 	end process combo_process;
 

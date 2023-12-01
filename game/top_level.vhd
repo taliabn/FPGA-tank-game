@@ -4,11 +4,6 @@ use ieee.numeric_std.all;
 
 use WORK.bullet_tank_const.all;
 
-
-
--- ghdl -a --workdir=work -g -fexplicit -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd
--- ghdl -a --workdir=work -g -fexplicit -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd
-
 entity top_level is
   port (
 	clk_50Mhz, reset: in std_logic;
@@ -19,8 +14,7 @@ entity top_level is
 	DATA_BUS				: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0);
 	segments_out_p1, segments_out_p2 : out std_logic_vector(6 downto 0);
 	VGA_RED, VGA_GREEN, VGA_BLUE 					: out std_logic_vector(7 downto 0);
-	HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK		: out std_logic;
-	game_pulse_o, p1_fire_o : out std_logic
+	HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK		: out std_logic
   );
 end top_level ;
 
@@ -59,7 +53,6 @@ architecture structural of top_level is
 		generic(
 			color: std_logic_vector(2 downto 0);
 			speed_magnitude: unsigned(9 downto 0);
-			-- If direction is 1, bullet will travel in the -y direction
 			direction: std_logic;
 			max_y_val : unsigned(9 downto 0)
 		);
@@ -73,10 +66,8 @@ architecture structural of top_level is
 
 	component collision_check is
         generic(
-            -- width and height of the objects
             obja_width: unsigned(9 downto 0);
             obja_height: unsigned(9 downto 0);
-
             objb_width: unsigned(9 downto 0);
             objb_height: unsigned(9 downto 0)
         );
@@ -115,13 +106,12 @@ architecture structural of top_level is
 		port(
 			CLOCK_50 									: in std_logic;
 			RESET_N										: in std_logic;
-			--VGA
 			VGA_RED, VGA_GREEN, VGA_BLUE 				: out std_logic_vector(7 downto 0);
 			HORIZ_SYNC, VERT_SYNC, VGA_BLANK, VGA_CLK	: out std_logic
 			);
 	end component vga_top_level;
 
-	-- controller
+	-- CONTROLLER
 	component ps2 is
 		port( 	keyboard_clk, keyboard_data, clock_50MHz ,
 				reset : in std_logic;--,
@@ -156,7 +146,7 @@ architecture structural of top_level is
 			clk, ROM_clk, rst_n, video_on, eof 				: in std_logic;
 			pixel_row, pixel_column						    : in std_logic_vector(9 downto 0);
 			red_out, green_out, blue_out					: out std_logic_vector(7 downto 0);
-			-- test_address 									: out std_logic_vector(2 downto 0);
+			test_address 									: out std_logic_vector(2 downto 0);
 			tank1_x, tank1_y, tank2_x, tank2_y				: in std_logic_vector(9 downto 0);
 			bullet1_x, bullet1_y, bullet2_x, bullet2_y 		: in std_logic_vector(9 downto 0)
 		);
@@ -171,7 +161,7 @@ architecture structural of top_level is
 			);
 	end component VGA_SYNC;
 
-	-- system
+	-- SYSTEM
 	component clock_counter is
     	port (
 			clock_100Mhz : IN STD_LOGIC;
@@ -205,22 +195,20 @@ architecture structural of top_level is
 	signal scan_readyo													: std_logic;
 	signal scan_code, hist0 											: std_logic_vector(7 downto 0);
 
-	--Signals for VGA sync
+	--Signals for VGA
 	signal pixel_row_int 										: std_logic_vector(9 downto 0);
 	signal pixel_column_int 									: std_logic_vector(9 downto 0);
 	signal video_on_int											: std_logic;
 	signal VGA_clk_int											: std_logic;
 	signal eof													: std_logic;
-	-- signal test_address											: std_logic_vector(2 downto 0);
+	signal test_address											: std_logic_vector(2 downto 0);
+
 begin
 
 	data_in_p1 <= "00" & p1_score;
 	data_in_p2 <= "00" & p2_score;
-	-- de2lcd has active low reset, everything else is using active high
 	inv_reset <= not reset;
-	
-	game_pulse_o <= game_pulse;
-	p1_fire_o <= p1_fire;
+
 	score_unit: score
 		generic map(
 			-- Value that player wins at
@@ -385,7 +373,45 @@ begin
 			LCD_RW => LCD_RW,
 			DATA_BUS => DATA_BUS
 		);
+	-- VGA
+	videoGen : pixelGenerator
+		port map(
+			clk => clk_50Mhz,
+			ROM_clk => VGA_clk_int,
+			rst_n => RESET_N,
+			video_on => video_on_int,
+			eof => eof,
+			pixel_row => pixel_row_int,
+			pixel_column => pixel_column_int,
+			red_out => VGA_RED,
+			green_out => VGA_GREEN,
+			blue_out => VGA_BLUE,
+			test_address => test_address,
+			tank1_x => x_pos_tank1,
+			tank1_y => y_pos_tank1,
+			tank2_x => x_pos_tank2,
+			tank2_y	=> y_pos_tank2,
+			bullet1_x => x_pos_bullet1,
+			bullet1_y => y_pos_bullet1,
+			bullet2_x => x_pos_bullet2,
+			bullet2_y => y_pos_bullet2
+		);
 
+	video_sync : VGA_SYNC
+		port map(
+			clock_50Mhz => clk_50Mhz,
+			horiz_sync_out => HORIZ_SYNC,
+			vert_sync_out => VERT_SYNC,
+			video_on => video_on_int,
+			pixel_clock => VGA_clk_int,
+			eof => eof,
+			pixel_row => pixel_row_int,
+			pixel_column => pixel_column_int
+		);
+	VGA_BLANK <= video_on_int;
+	VGA_CLK <= VGA_clk_int;
+
+	-- SYSTEM
 	clock_counter_unit: clock_counter
 		port map(
 			clock_100MHz => pll_100MHz_clk,
@@ -447,43 +473,7 @@ begin
 			speed => p2_speed,
 			fire => p2_fire
 		);
-	-- VGA stuff
-	videoGen : pixelGenerator
-		port map(
-			clk => clk_50Mhz,
-			ROM_clk => VGA_clk_int,
-			rst_n => RESET_N,
-			video_on => video_on_int,
-			eof => eof,
-			pixel_row => pixel_row_int,
-			pixel_column => pixel_column_int,
-			red_out => VGA_RED,
-			green_out => VGA_GREEN,
-			blue_out => VGA_BLUE,
-			-- test_address => test_address,
-			tank1_x => x_pos_tank1,
-			tank1_y => y_pos_tank1,
-			tank2_x => x_pos_tank2,
-			tank2_y	=> y_pos_tank2,
-			bullet1_x => x_pos_bullet1,
-			bullet1_y => y_pos_bullet1,
-			bullet2_x => x_pos_bullet2,
-			bullet2_y => y_pos_bullet2
-		);
-
-	video_sync : VGA_SYNC
-		port map(
-			clock_50Mhz => clk_50Mhz,
-			horiz_sync_out => HORIZ_SYNC,
-			vert_sync_out => VERT_SYNC,
-			video_on => video_on_int,
-			pixel_clock => VGA_clk_int,
-			eof => eof,
-			pixel_row => pixel_row_int,
-			pixel_column => pixel_column_int
-		);
-	VGA_BLANK <= video_on_int;
-	VGA_CLK <= VGA_clk_int;
-
 end architecture;
 
+-- ghdl -a --workdir=work -g -fexplicit -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd
+-- ghdl -a --workdir=work -g -fexplicit -fsynopsys bullet_tank_const.vhd bullet.vhd tank.vhd char_buffer.vhd clock_counter.vhd collision_check.vhd colorROM.vhd pixelGenerator.vhd vga_sync.vhd de2lcd.vhd oneshot.vhd keyboard.vhd kb_mapper.vhd ps2.vhd leddcd.vhd score.vhd top_level.vhd

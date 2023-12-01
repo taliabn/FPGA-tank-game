@@ -3,14 +3,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 
--- ghdl -a --workdir=work -g -fsynopsys de2lcd.vhd char_buffer.vhd char_buffer_tb.vhd
--- ghdl --elab-run -g --workdir=work -fsynopsys char_buffer_tb
 
 entity char_buffer_tb is
 end entity char_buffer_tb ;
 
 architecture behavioral of char_buffer_tb is
-	-- component declaration for the unit under test
 	component char_buffer is
 		port (
 			p1_win, p2_win, reset, clk : in std_logic;
@@ -109,3 +106,6 @@ begin
 	end process test_process;
 
 end architecture behavioral;
+
+-- ghdl -a --workdir=work -g -fsynopsys de2lcd.vhd char_buffer.vhd char_buffer_tb.vhd
+-- ghdl --elab-run -g --workdir=work -fsynopsys char_buffer_tb

@@ -18,12 +18,12 @@ end entity pixelGenerator;
 
 architecture behavioral of pixelGenerator is
 
-	constant color_dk_red 	: std_logic_vector(2 downto 0) := "000"; -- dark red
-	constant color_dk_blue 	: std_logic_vector(2 downto 0) := "001"; -- dark blue
-	constant color_lt_red	: std_logic_vector(2 downto 0) := "010"; -- light red
-	constant color_lt_blue 	: std_logic_vector(2 downto 0) := "011"; -- light blue
-	constant color_black 	: std_logic_vector(2 downto 0) := "110"; -- black
-	constant color_white	: std_logic_vector(2 downto 0) := "111"; -- white
+	constant color_dk_red 	: std_logic_vector(2 downto 0) := "000";
+	constant color_dk_blue 	: std_logic_vector(2 downto 0) := "001";
+	constant color_lt_red	: std_logic_vector(2 downto 0) := "010";
+	constant color_lt_blue 	: std_logic_vector(2 downto 0) := "011";
+	constant color_black 	: std_logic_vector(2 downto 0) := "110";
+	constant color_white	: std_logic_vector(2 downto 0) := "111";
 
 	constant color_tank1 	: std_logic_vector(2 downto 0) := color_dk_red;
 	constant color_tank2    : std_logic_vector(2 downto 0) := color_dk_blue;

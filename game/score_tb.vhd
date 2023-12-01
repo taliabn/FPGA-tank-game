@@ -71,9 +71,8 @@ begin
 		assert p2_score = std_logic_vector(to_unsigned(0, 2)) report "Test 0 failed from p2_score" severity error;
 		assert p1_win = '0' report "Test 0 failed from p1_win" severity error;
 		assert p2_win = '0' report "Test 0 failed from p2_win" severity error;
-		-- test 1: 1:0 (p2 hit)
-		wait for clk_period;
 
+		-- test 1: 1:0 (p2 hit)
 		p1_hit <= '0'; 
 		p2_hit <= '1'; 
 		wait for clk_period;
@@ -91,7 +90,6 @@ begin
 		p1_hit <= '1'; 
 		p2_hit <= '0'; 
 		wait for clk_period;
-
 
 		assert p1_score = std_logic_vector(to_unsigned(1, 2)) report "Test 2 failed from p1_score" severity error;
 		assert p2_score = std_logic_vector(to_unsigned(1, 2)) report "Test 2 failed from p2_score" severity error;

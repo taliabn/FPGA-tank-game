@@ -2,25 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- bullet (two instances)
--- inputs:
-	-- intial_x_pos, intial_y_pos: in std_logic_vector(9 downto 0)
-	-- reset, fire, game_pulse, is_collision: in std_logic
--- generics: color: std_logic_vector(2 downto 0),
-			-- direction: std_logic;
--- outputs: x_pos, y_pos: out std_logic_vector(9 downto 0)
--- notes: will have two instances
-	-- existence is implicitly tracked by setting positions to max vals (aka off screen)
-
--- bullet -> is vibing
--- reset -> bullet is off screen
-	--
--- when fired
-	-- model tells bullet to go to an xy (model knows that xy is the tank position)
--- when collision
-	-- model tells bullet to leave screen to an xy
--- normal
-	-- bullet proceeds on its velocity
 
 entity bullet is
     generic(

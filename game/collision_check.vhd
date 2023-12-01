@@ -2,17 +2,6 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- collision detection (two instances)
--- inputs:
-	-- obja_x, obja_y, objb_x objb_y: in std_logic_vector(9 downto 0)
-	-- reset, clk: in std_logic
--- outputs:
-	-- is_collision: out std_logic
--- notes:
-	-- Checks between two rectangles to see if they are colliding
-    -- X and Y are given as 10 bit std_logic_vectors, and reflect the top left corner of the object
-    -- The width and height of the objects are assumed to be 8 pixels
-    -- Calculate rectangular collision
 
 entity collision_check is
     generic(
