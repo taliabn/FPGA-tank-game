@@ -18,7 +18,11 @@
     - [Scoring](#scoring)
   - [Board Implementation and Peripherals](#board-implementation-and-peripherals)
   - [Simulation Figures and Testing Methodology](#simulation-figures-and-testing-methodology)
-  	- [Zoomed in view of clock counter simulation](#zoomed-in-view-of-clock-counter-simulation)
+          - [char\_buffer simulation](#char_buffer-simulation)
+          - [pixelGenerator simulation subset](#pixelgenerator-simulation-subset)
+          - [score simulation subset](#score-simulation-subset)
+          - [Zoomed in view of clock counter simulation](#zoomed-in-view-of-clock-counter-simulation)
+          - [kb\_mapper simulation subset](#kb_mapper-simulation-subset)
   - [Synthesis Results](#synthesis-results)
     - [Used memory:](#used-memory)
     - [Clocks:](#clocks)
@@ -30,6 +34,8 @@
 
 ## Introduction
 For this project we implemented a basic tank game on the DE2-115 FPGA development board. The game is played by two players, each controlling a tank on opposite sides of the screen. The goal of the game is to shoot the other player’s tank before they shoot yours. The game is played on an external 640x480 VGA display, and the tanks are controlled by an external PS/2 keyboard. Scores are displayed on the on-board 7-segement LED displays, and the winner of the game is displayed on an on-board LCD display. The game is written in VHDL.
+
+![Gameplay](images/game_screenshot.png)
 
 ## Design Process and Methodology
 The game was designed in a modular fashion, with each component of the game being implemented as a separate module. The modules were then integrated together to form the final game in a single top-level module. The modules were tested individually using testbenches, then tested together in simulation, and then the game was tested as a whole on the FPGA.
@@ -76,20 +82,22 @@ When a player wins the game, a message declaring the winner displayed on the 7-s
 
 ### Clock Counter
 Since the game clock is 100 MHz, we needed a way to produce a pulse considerably slower to allow for the game to be playable. We targeted a 30 fps game. To do this, we created a clock counter module, located in our [clock_counter.vhd](game/clock_counter.vhd) file. This module takes in the 100 MHz clock and has a 21 bit counter inside. When the counter equals zero (values are unsigned so when the value of $2^{21}-1=2097151$ is passed, the counter resets to zero), the module outputs a pulse. This pulse is used to advance the game logic. This results in an FPS of roughly $\frac{100 *10^{6} Hz}{2^{21}}=47.68$ pulses per second. Each pulse is one clock tick long.
-
 ![Clock Counter](images/game_pulse.png)
 
 ### Tank
 The tank module is located in our [tank.vhd](game/tank.vhd) file. The tank takes in a speed from 0-3. It moves in a direction until it reaches a side, in which case it bounces off and moves in the opposite direction. Tank stores its own position, and outputs this position to the top-level module. The tank also takes in a signal to let it know if it has lost the game, and should move off the screen.
+Tank is structured as an FSM, with states being advanced only on a game tick pulse. However, data is appropriately clocked to the main game clock.
 
 ### Bullet
 The bullet module is located in our [bullet.vhd](game/bullet.vhd) file. When it recieves the fire signal, it moves to its tank's position, and begins to move. If it hits the opposite side, it moves off the screen. It has an input to let it know if it has it the other tank, and should move off the screen. The bullet stores its own position, and outputs this position to the top-level module.
+Bullet is structured as an FSM, with states being advanced only on a game tick pulse. However, data is appropriately clocked to the main game clock.
 
 ### Collision Detection
 The collision detection module is located in our [collision_detection.vhd](game/collision_detection.vhd) file. Two instances of this module are used, one to detect bullet1->tank2, and bullet2->tank1. The module takes in the positions of the two objects, and outputs a signal if they are colliding. It takes the sizes of each object as a generic. The module uses a simple bounding box collision detection algorithm. This algorithm was intentionally kept simple, and has a very short datapath when viewed in RTL.
 
 ### Scoring
-The scoring module is located in our [scoring.vhd](game/scoring.vhd) file. It takes in control signals from the collision detection modult that indicate if a player's tank was hit. If a tank was hit, the opposite player scores a point. For extensibility, the number of points needed to win comes from the generic `win_score`. In addition to outputting each player's score, module outputs control signal saying if each player has won.
+The scoring module is located in our [scoring.vhd](game/scoring.vhd) file. It takes in signals from the collision detection modult that indicate if a player's tank was hit. If a tank was hit, the opposite player scores a point. For extensibility, the number of points needed to win comes from the generic `win_score`. In addition to outputting each player's score, module outputs a signal saying if each player has won.
+The scoring module is structured as an FSM with three states: scored, gameplay, and win. To debounce collisions and avoid accidental double scoring due to potential mistiming with the bullet moving offscreen, the scoring module sits in the scored state until both collision signals are deasserted. This ensures that the score is only incremented once per collision, as happens in the gameplay state.
 
 
 ## Board Implementation and Peripherals
@@ -114,7 +122,6 @@ To write to the LCD display, the [de2lcd.vhd](game/de2lcd.vhd) module puts one c
 ### PLL and Clocking
 The base DE2-115 board has a 50 MHz clock, but for the purposes of the assignment we decided to use a 100 MHz clock. This allowed us to have a higher resolution game. To step between these speeds, we created a PLL module using the Quartus software that takes in the 50 MHz system clock and outputs a 100 MHz clock. This PLL module is located in our [pll.vhd](game/pll.vhd) file.
 
-
 ## Simulation Figures and Testing Methodology
 As mentioned above, we created simple tests, fully testing one or two modules at a time in simulation before integrating them into larger tests.  We chose to structure most of our tests using `assert` statements, as this allowed us to easily see if the test passed or failed. We also used `report` statements to print out the values of signals, and `wait` statements to pause the simulation. Each testbench operates independently, and has hard-coded inputs and outputs. This method gave us more control over when to change inputs and check outputs as compared to a file-based testbench that reads input and expected output values in a strictly regularly structured loop.
 
@@ -135,11 +142,15 @@ We were able to confidently test all modules except for the clock counter module
   * Tests the char_buffer module
   * Tests to make sure that the correct buffer is output for a given input
   * Checks all used combinations of inputs
+![char_buffer_tb waveform subset](images/char_buffer_tb.png)
+###### char_buffer simulation
 
 **collision_check_tb.vhd**
   * Tests the collision detection module
   * Tests to make sure that the correct output is given for a given input
   * Single module test; Simply uses numeric values, does not integrate tank
+  * Tests multiple combinations of inputs, including two objects of different shapes, levels of overlapping (edges overlapped vs touching), and different positions
+
 
 **fire_collision_tb.vhd**
  * Uses 2 tanks and 2 bullets, 1 collision detection module
@@ -148,10 +159,13 @@ We were able to confidently test all modules except for the clock counter module
  * Checks to ensure bullets move correctly
  * Check to ensure that detection of collision is correct
  * Checks to ensure that bullets move offscreen at the correct time
+ * Manually cycle game pulse with constant clock for faster testing; reduce complexity
 
 **integration_tb.vhd**
  * Tests the full integration of tank, bullet, collision detection, score, LCD, and clock counter
  * Simulation takes a long time to run, but tests the full functionality of the game minus the VGA output, 7-segment LED display, and moving tanks
+ * Tests to make sure that the correct output is given for a given sequence of inputs
+ * Tests both players scoring, shooting
 
 **kb_mapper_tb.vhd**
  * Tests the keyboard input mapping module in simulation
@@ -161,17 +175,27 @@ We were able to confidently test all modules except for the clock counter module
   * Tests the pixel generator module in simulation
   * Tests to make sure that the correct output is given for a given input
 
+![pixelGenerator_tb waveform subset](images/pixelGenerator_tb.png)
+###### pixelGenerator simulation subset
+
 **score_tb.vhd**
   * Tests the score module in simulation
   * Tests to make sure that the correct output is given for a given input
+![score_tb waveform subset](images/score_tb.png)
+###### score simulation subset
 
 **clock_counter_small_tb.vhd**
   * Tests a modified version of the clock counter (max width is 11 bits rather than 21)
   * Shows proper behavior
   * Tests single module
-
 ![clock_counter_small waveform subset](images/clk_counter.png)
 ###### Zoomed in view of clock counter simulation
+
+**kb_mapper_tb**
+  * Tests the keyboard input mapping module in simulation
+  * Tests to make sure that the correct output is given for a given input; correct speed is output for a given key press and is held appropriately
+![kb_mapper_tb waveform subset](images/kb_mapper_tb.png)
+###### kb_mapper simulation subset
 
 
 ## Synthesis Results
