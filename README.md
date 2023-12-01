@@ -91,7 +91,7 @@ Since the game clock is 100 MHz, we needed a way to produce a pulse considerably
 ![Clock Counter](images/game_pulse.png)
 
 ### Tank
-The tank module is located in our [tank.vhd](game/tank.vhd) file. `tank` takes in a speed from 1-3 from `keyboard_mapper`. It moves horitzontally in one direction until it reaches a side, in which case it bounces off and moves in the opposite direction. `tank` stores its own position, and outputs this position to the top-level module. `tank` also takes in a signal to let it know if it has lost the game, and should move off the screen.
+The tank module is located in our [tank.vhd](game/tank.vhd) file. `tank` takes in a speed from 1-3 from `keyboard_mapper` (speed can be set to 0 for testing purposes). It moves horitzontally in one direction until it reaches a side, in which case it bounces off and moves in the opposite direction. `tank` stores its own position, and outputs this position to the top-level module. `tank` also takes in a signal to let it know if it has lost the game, and should move off the screen.
 `tank` is structured as an FSM, with states being advanced only on a game_pulse. However, data is appropriately clocked to the main game clock.
 
 ### Bullet
@@ -164,7 +164,7 @@ We were able to confidently test all modules except for the `clock_counter` modu
 
 **fire_collision_tb.vhd**
  * Uses 2 tanks and 2 bullets, 1 collision detection module
- * Static tank positions
+ * Static tank positions (uses testing speed of 0)
  * Fires bullets
  * Checks to ensure bullets move correctly
  * Check to ensure that detection of collision is correct
@@ -202,7 +202,7 @@ We were able to confidently test all modules except for the `clock_counter` modu
 ###### score simulation subset
 
 **clock_counter_small_tb.vhd**
-  * Tests a modified version of the `clock_counter` (max width is 11 bits rather than 21)
+  * Tests a modified version of the `clock_counter` (max width is 7 bits rather than 21)
   * Shows proper behavior
     * output pulse only asserted for one clock cycle
   * Tests single module
