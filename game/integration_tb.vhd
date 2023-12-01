@@ -83,8 +83,6 @@ architecture behavioral of integration_tb is
 
     signal TB_speed : std_logic_vector(1 downto 0) := "00";
     signal TB_reset, TB_game_pulse : std_logic := '0';
-    -- signal TB_lost_game1 : std_logic := '0';
-    -- signal TB_lost_game2 : std_logic := '0';
 
 	signal TB_win1, TB_win2 : std_logic := '0';
 	signal TB_score1, TB_score2 : std_logic_vector(1 downto 0) := "00";
@@ -94,8 +92,6 @@ architecture behavioral of integration_tb is
 
     signal TB_fire1, TB_bullet1_collision : std_logic := '0';
     signal TB_fire2, TB_bullet2_collision : std_logic := '0';
-    -- signal TB_game_over_bullet1 : std_logic := '0';
-    -- signal TB_game_over_bullet2 : std_logic := '0';
     signal TB_bullet1_x_pos_out, TB_bullet1_y_pos_out : std_logic_vector(9 downto 0) := (others => '0');
     signal TB_bullet2_x_pos_out, TB_bullet2_y_pos_out : std_logic_vector(9 downto 0) := (others => '0');
 
@@ -262,18 +258,12 @@ architecture behavioral of integration_tb is
         process is
         begin
             assert false report "Start of TestBench" severity note;
-			-- TB_win1 <= '0';
-			-- TB_win2 <= '0';
             -- Set every single input to 0
             TB_speed <= "00";
             TB_reset <= '0';
             TB_game_pulse <= '0';
-            -- TB_lost_game1 <= '0';
-            -- TB_lost_game2 <= '0';
             TB_fire1 <= '0';
             TB_fire2 <= '0';
-            -- TB_game_over_bullet1 <= '0';
-            -- TB_game_over_bullet2 <= '0';
             finished <= '0';
 
             -- Reset
@@ -281,19 +271,6 @@ architecture behavioral of integration_tb is
             wait for clk_period;
             TB_reset <= '0';
             wait for clk_period;
-
-            -- finished <= '1'; wait;
-            -- print the game win signals
-            -- report "p1_hit: " & std_logic'image(TB_bullet2_collision) & " p2_hit: " & std_logic'image(TB_bullet1_collision) severity note;
-            -- report "Win1: " & std_logic'image(TB_win1) & " Win2: " & std_logic'image(TB_win2) severity note;
-            -- report "TB_score1: " & integer'image(to_integer(unsigned(TB_score1))) & " TB_score2: " & integer'image(to_integer(unsigned(TB_score2))) severity note;
-            -- Verify that the positions are as expected
-            -- tank1 at (40, 1), tank2 at (40, 170), bullet1 at (1000, 1000), bullet2 at (1000, 1000)
-
-            -- report "Tank1X: " & integer'image(to_integer(unsigned(TB_tank1_x_pos_out))) & " Tank1Y: " & integer'image(to_integer(unsigned(TB_tank1_y_pos_out))) severity note;
-            -- report "Tank2X: " & integer'image(to_integer(unsigned(TB_tank2_x_pos_out))) & " Tank2Y: " & integer'image(to_integer(unsigned(TB_tank2_y_pos_out))) severity note;
-            -- report "Bullet1X: " & integer'image(to_integer(unsigned(TB_bullet1_x_pos_out))) & " Bullet1Y: " & integer'image(to_integer(unsigned(TB_bullet1_y_pos_out))) severity note;
-            -- report "Bullet2X: " & integer'image(to_integer(unsigned(TB_bullet2_x_pos_out))) & " Bullet2Y: " & integer'image(to_integer(unsigned(TB_bullet2_y_pos_out))) severity note;
 
             assert TB_tank1_x_pos_out = std_logic_vector(to_unsigned(40, 10)) report "Tank1 X position error" severity error;
             assert TB_tank1_y_pos_out = std_logic_vector(to_unsigned(1, 10)) report "Tank1 Y position error" severity error;
@@ -324,8 +301,6 @@ architecture behavioral of integration_tb is
             wait for clk_period;
             TB_game_pulse <= '0';
             wait for clk_period;
-
-
 
             -- Verify that the positions are as expected (bullet has moved 10 pixels)
             assert TB_tank1_x_pos_out = std_logic_vector(to_unsigned(40, 10)) report "Tank1 X position error" severity error;
@@ -521,7 +496,6 @@ architecture behavioral of integration_tb is
             TB_game_pulse <= '1';
             wait for clk_period;
             TB_game_pulse <= '0';
-            wait for clk_period;
 
             TB_fire1 <= '0';
 
