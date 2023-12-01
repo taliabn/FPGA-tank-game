@@ -18,7 +18,11 @@
     - [Scoring](#scoring)
   - [Board Implementation and Peripherals](#board-implementation-and-peripherals)
   - [Simulation Figures and Testing Methodology](#simulation-figures-and-testing-methodology)
+          - [char\_buffer simulation](#char_buffer-simulation)
+          - [pixelGenerator simulation subset](#pixelgenerator-simulation-subset)
+          - [score simulation subset](#score-simulation-subset)
           - [Zoomed in view of clock counter simulation](#zoomed-in-view-of-clock-counter-simulation)
+          - [kb\_mapper simulation subset](#kb_mapper-simulation-subset)
   - [Synthesis Results](#synthesis-results)
     - [Used memory:](#used-memory)
     - [Clocks:](#clocks)
@@ -123,6 +127,8 @@ We were able to confidently test all modules except for the clock counter module
   * Tests the char_buffer module
   * Tests to make sure that the correct buffer is output for a given input
   * Checks all used combinations of inputs
+![char_buffer_tb waveform subset](images/char_buffer_tb.png)
+###### char_buffer simulation
 
 **collision_check_tb.vhd**
   * Tests the collision detection module
@@ -149,17 +155,27 @@ We were able to confidently test all modules except for the clock counter module
   * Tests the pixel generator module in simulation
   * Tests to make sure that the correct output is given for a given input
 
+![pixelGenerator_tb waveform subset](images/pixelGenerator_tb.png)
+###### pixelGenerator simulation subset
+
 **score_tb.vhd**
   * Tests the score module in simulation
   * Tests to make sure that the correct output is given for a given input
+![score_tb waveform subset](images/score_tb.png)
+###### score simulation subset
 
 **clock_counter_small_tb.vhd**
   * Tests a modified version of the clock counter (max width is 11 bits rather than 21)
   * Shows proper behavior
   * Tests single module
-
 ![clock_counter_small waveform subset](images/clk_counter.png)
 ###### Zoomed in view of clock counter simulation
+
+**kb_mapper_tb**
+  * Tests the keyboard input mapping module in simulation
+  * Tests to make sure that the correct output is given for a given input; correct speed is output for a given key press and is held appropriately
+![kb_mapper_tb waveform subset](images/kb_mapper_tb.png)
+###### kb_mapper simulation subset
 
 
 ## Synthesis Results
